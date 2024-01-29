@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Aiursoft.GptGateway.Api.Services;
+namespace Aiursoft.GptGateway.Api.Models;
 
 public class UsageData
 {

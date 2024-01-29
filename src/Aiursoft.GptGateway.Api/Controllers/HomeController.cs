@@ -1,3 +1,4 @@
+using Aiursoft.GptGateway.Api.Models;
 using Aiursoft.GptGateway.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
-using Aiursoft.GptGateway.Api.Models;
 
-namespace Aiursoft.GptGateway.Api.Services;
+namespace Aiursoft.GptGateway.Api.Models;
 
 /// <summary>
 /// Represents the response data from the OpenAI API for a text completion request.
