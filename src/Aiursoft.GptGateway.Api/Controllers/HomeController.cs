@@ -1,31 +1,28 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Aiursoft.GptGateway.Api.Models;
+using GptGateway.Services;
 
-namespace Aiursoft.GptGateway.Api.Controllers;
+namespace Aiursoft.GptGateway.Controllers;
 
-public class HomeController : Controller
+public class HomeController : ControllerBase
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly OpenAiService _openAiService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(OpenAiService openAiService)
     {
-        _logger = logger;
+        _openAiService = openAiService;
     }
-
-    public IActionResult Index()
+    
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var answer = await _openAiService.Ask("What is the meaning of life?");
+        return Ok(answer);
     }
-
-    public IActionResult Privacy()
+    
+    [HttpPost]
+    [Route("/v1/chat/completions")]
+    public async Task<IActionResult> Ask([FromBody] OpenAiModel model)
     {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var answer = await _openAiService.Ask(model);
+        return Ok(answer);
     }
 }
