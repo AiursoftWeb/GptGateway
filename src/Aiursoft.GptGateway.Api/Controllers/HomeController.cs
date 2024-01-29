@@ -1,7 +1,7 @@
+using Aiursoft.GptGateway.Api.Services;
 using Microsoft.AspNetCore.Mvc;
-using GptGateway.Services;
 
-namespace Aiursoft.GptGateway.Controllers;
+namespace Aiursoft.GptGateway.Api.Controllers;
 
 public class HomeController : ControllerBase
 {

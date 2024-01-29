@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Aiursoft.GptGateway.Services;
+namespace Aiursoft.GptGateway.Api.Services;
 
 public class CompletionData
 {
@@ -39,5 +39,5 @@ public class CompletionData
     /// </summary>
     [JsonPropertyName("choices")]
     // ReSharper disable once CollectionNeverUpdated.Global
-    public List<ChoicesItemData> Choices { get; set; } = [];
+    public List<ChoicesItemData> Choices { get; set; } = new List<ChoicesItemData>();
 }

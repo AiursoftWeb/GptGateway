@@ -1,8 +1,8 @@
 using System.Reflection;
+using Aiursoft.GptGateway.Api.Services;
 using Aiursoft.WebTools.Abstractions.Models;
-using GptGateway.Services;
 
-namespace Aiursoft.GptGateway;
+namespace Aiursoft.GptGateway.Api;
 
 public class Startup : IWebStartup
 {

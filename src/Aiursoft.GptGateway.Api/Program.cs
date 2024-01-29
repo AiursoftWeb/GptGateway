@@ -1,6 +1,6 @@
 using Aiursoft.WebTools;
 
-namespace Aiursoft.GptGateway;
+namespace Aiursoft.GptGateway.Api;
 
 public abstract class Program
 {

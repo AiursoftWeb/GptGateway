@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Aiursoft.GptGateway.Services;
+namespace Aiursoft.GptGateway.Api.Services;
 
 public class ChoicesItemData
 {

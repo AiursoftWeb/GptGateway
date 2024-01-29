@@ -5,7 +5,7 @@ using System.Text.Json;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Aiursoft.GptGateway.Services;
+namespace Aiursoft.GptGateway.Api.Services;
 
 public class OpenAiService
 {
