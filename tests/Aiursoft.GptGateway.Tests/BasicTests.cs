@@ -1,5 +1,4 @@
 ﻿using Aiursoft.CSTools.Tools;
-using Aiursoft.GptGateway.Api;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
@@ -24,7 +23,7 @@ public class BasicTests
     [TestInitialize]
     public async Task CreateServer()
     {
-        _server = App<Startup>(Array.Empty<string>(), port: _port);
+        _server = App<TestStartup>(Array.Empty<string>(), port: _port);
         await _server.StartAsync();
     }
 

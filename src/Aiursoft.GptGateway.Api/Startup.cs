@@ -6,7 +6,7 @@ namespace Aiursoft.GptGateway.Api;
 
 public class Startup : IWebStartup
 {
-    public void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
+    public virtual void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
     {
         services.AddHttpClient();
         services.AddTransient<OpenAiService>();

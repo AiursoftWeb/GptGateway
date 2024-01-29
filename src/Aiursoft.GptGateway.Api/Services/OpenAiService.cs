@@ -26,7 +26,7 @@ public class OpenAiService
         _instance = configuration["OpenAI:Instance"]!;
     }
     
-    public async Task<CompletionData> Ask(OpenAiModel model)
+    public virtual async Task<CompletionData> Ask(OpenAiModel model)
     {
         if (string.IsNullOrWhiteSpace(_token))
         {
