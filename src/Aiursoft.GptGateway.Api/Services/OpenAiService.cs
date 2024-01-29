@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Aiursoft.GptGateway.Api.Models;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
