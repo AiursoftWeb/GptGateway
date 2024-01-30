@@ -2,7 +2,7 @@ aiur() { arg="$( cut -d ' ' -f 2- <<< "$@" )" && curl -sL https://gitlab.aiursof
 
 app_name="GptGateway"
 repo_path="https://gitlab.aiursoft.cn/aiursoft/gptgateway"
-proj_path="src/Aiursoft.Aiursoft.GptGateway.Api/Aiursoft.GptGateway.Api.csproj"
+proj_path="src/Aiursoft.GptGateway.Api/Aiursoft.GptGateway.Api.csproj"
 
 get_dll_name()
 {
