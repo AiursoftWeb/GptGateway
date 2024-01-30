@@ -31,6 +31,7 @@ public class Startup : IWebStartup
         services.AddScoped<IPlugin, SearchPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
+        services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();
         
         services
             .AddControllers()
