@@ -1,6 +1,6 @@
 aiur() { arg="$( cut -d ' ' -f 2- <<< "$@" )" && curl -sL https://gitlab.aiursoft.cn/aiursoft/aiurscript/-/raw/master/$1.sh | sudo bash -s $arg; }
 
-app_name="GptGateway"
+app_name="gptgateway"
 repo_path="https://gitlab.aiursoft.cn/aiursoft/gptgateway"
 proj_path="src/Aiursoft.GptGateway.Api/Aiursoft.GptGateway.Api.csproj"
 
