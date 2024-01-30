@@ -6,10 +6,17 @@ namespace Aiursoft.GptGateway.Api.Controllers;
 
 public class HomeController : ControllerBase
 {
+    private readonly IEnumerable<IPreRequestMiddleware> _preRequestMiddlewares;
+    private readonly IEnumerable<IPostRequestMiddleware> _postRequestMiddlewares;
     private readonly OpenAiService _openAiService;
 
-    public HomeController(OpenAiService openAiService)
+    public HomeController(
+        IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
+        IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
+        OpenAiService openAiService)
     {
+        _preRequestMiddlewares = preRequestMiddlewares;
+        _postRequestMiddlewares = postRequestMiddlewares;
         _openAiService = openAiService;
     }
     
@@ -23,7 +30,16 @@ public class HomeController : ControllerBase
     [Route("/v1/chat/completions")]
     public async Task<IActionResult> Ask([FromBody] OpenAiModel model)
     {
+        var requestTime = DateTime.UtcNow;
+        foreach (var middleware in _preRequestMiddlewares)
+        {
+            model = await middleware.PreRequest(HttpContext, model);
+        }
         var answer = await _openAiService.Ask(model);
+        foreach (var middleware in _postRequestMiddlewares)
+        {
+            answer = await middleware.PostRequest(HttpContext, model, answer, requestTime);
+        }
         return Ok(answer);
     }
 }

@@ -1,4 +1,9 @@
-﻿using Aiursoft.CSTools.Tools;
+﻿using System.Text;
+using System.Text.Json;
+using Aiursoft.CSTools.Tools;
+using Aiursoft.DbTools;
+using Aiursoft.GptGateway.Api.Data;
+using Aiursoft.GptGateway.Api.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
@@ -24,6 +29,7 @@ public class BasicTests
     public async Task CreateServer()
     {
         _server = App<TestStartup>(Array.Empty<string>(), port: _port);
+        await _server.UpdateDbAsync<GptGatewayDbContext>(UpdateMode.MigrateThenUse);
         await _server.StartAsync();
     }
 
@@ -40,6 +46,32 @@ public class BasicTests
     public async Task GetHome(string url)
     {
         var response = await _http.GetAsync(_endpointUrl + url);
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task PostApi()
+    {
+        var model = new OpenAiModel
+        {
+            Messages = new List<MessagesItem>()
+            {
+                new MessagesItem()
+                {
+                    Role = "user",
+                    Content = "hi"
+                }
+            },
+            Stream = true,
+            Model = "gpt-4",
+            Temperature = 0.5,
+            PresencePenalty = 0
+        };
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/v1/chat/completions")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json")
+        };
+        var response = await _http.SendAsync(request);
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
 }
