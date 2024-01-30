@@ -32,14 +32,15 @@ public class HomeController : ControllerBase
     public async Task<IActionResult> Ask([FromBody] OpenAiModel model)
     {
         var requestTime = DateTime.UtcNow;
+        var context = new ConversationContext();
         foreach (var middleware in _preRequestMiddlewares)
         {
-            model = await middleware.PreRequest(HttpContext, model);
+            model = await middleware.PreRequest(HttpContext, model, context);
         }
         var answer = await _openAiService.AskModel(model, GptModel.Gpt432K);
         foreach (var middleware in _postRequestMiddlewares)
         {
-            answer = await middleware.PostRequest(HttpContext, model, answer, requestTime);
+            answer = await middleware.PostRequest(HttpContext, model, answer, requestTime, context);
         }
         return Ok(answer);
     }

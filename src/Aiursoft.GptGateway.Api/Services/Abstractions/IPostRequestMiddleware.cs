@@ -4,5 +4,10 @@ namespace Aiursoft.GptGateway.Api.Services.Abstractions;
 
 public interface IPostRequestMiddleware
 {
-    Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime);
+    Task<CompletionData> PostRequest(
+        HttpContext context,
+        OpenAiModel model,
+        CompletionData data,
+        DateTime requestTime,
+        ConversationContext conv);
 }

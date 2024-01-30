@@ -21,7 +21,7 @@ public class RecordInDbMiddleware : IPostRequestMiddleware
         _canonQueue = canonQueue;
     }
     
-    public Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime)
+    public Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime, ConversationContext conv)
     {
         var userConversation = new UserConversation
         {

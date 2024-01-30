@@ -17,7 +17,7 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
         _plugins = plugins;
     }
 
-    public async Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model)
+    public async Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model, ConversationContext conv)
     {
         var pluginRanks = new List<(IPlugin plugin, int rank)>();
         foreach (var plugin in _plugins)
@@ -39,7 +39,8 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
             return model;
         }
         
-        var message = await bestPlugin.plugin.GetPluginAppendedMessage(model.Messages.LastOrDefault()?.Content!);
+        conv.ToolsUsed.Add(bestPlugin.plugin.PluginName);
+        var message = await bestPlugin.plugin.GetPluginAppendedMessage(model.Messages.LastOrDefault()?.Content!, conv);
         
         // Replace the last message.
         model.Messages[^1] = new MessagesItem

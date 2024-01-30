@@ -5,7 +5,7 @@ namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
 public class FixModelMiddleware : IPreRequestMiddleware
 {
-    public Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model)
+    public Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model, ConversationContext conv)
     {
         model.Messages = model.Messages.TakeLast(6).ToList();
         model.Stream = false;

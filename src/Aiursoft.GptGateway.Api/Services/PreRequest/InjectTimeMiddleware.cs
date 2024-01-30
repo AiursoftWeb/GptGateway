@@ -5,7 +5,7 @@ namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
 public class InjectTimeMiddleware : IPreRequestMiddleware
 {
-    public Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model)
+    public Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model, ConversationContext conv)
     {
         if (!(model.Messages.FirstOrDefault()?.Content?.StartsWith("此时此刻的时间是") ?? false))
         {
