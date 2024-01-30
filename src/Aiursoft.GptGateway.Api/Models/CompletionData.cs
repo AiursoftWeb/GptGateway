@@ -40,5 +40,5 @@ public class CompletionData
     [JsonPropertyName("choices")]
     // ReSharper disable once CollectionNeverUpdated.Global
     // ReSharper disable once CollectionNeverQueried.Global
-    public List<ChoicesItemData> Choices { get; set; } = new List<ChoicesItemData>();
+    public List<ChoicesItemData> Choices { get; set; } = new();
 }

@@ -17,9 +17,7 @@ public class SearchService
     public virtual async Task<SearchResponse> DoSearch(string question, int page = 1)
     {
         var credential = new ApiKeyServiceClientCredentials(_searchApiKey);
-        var client = new WebSearchClient(credential)
-        {
-        };
+        var client = new WebSearchClient(credential);
         client.SetPrivatePropertyValue("BaseUri", "{Endpoint}/v7.0");
         client.Endpoint = "https://api.bing.microsoft.com";
         var webData = await client.Web.SearchAsync(
@@ -46,6 +44,6 @@ public static void SetPrivatePropertyValue<T>(this object obj, string propName, 
     if (t.GetProperty(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) == null)
         throw new ArgumentOutOfRangeException(nameof(propName),
             $"Property {propName} was not found in Type {obj.GetType().FullName}");
-    t.InvokeMember(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, obj, new object[] { val });
+    t.InvokeMember(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, obj, new object[] { val! });
 }
 }
