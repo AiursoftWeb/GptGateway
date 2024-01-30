@@ -47,7 +47,7 @@ public class SearchPlugin : IPlugin
     {
         var getSearchEntityPrompt = string.Format(_getSearchEntityPrompt, question);
         var textToSearch = (await _openAiService.AskOne(getSearchEntityPrompt, GptModel.Gpt4)).Trim('\"');
-        context.UserMessages.Add($"""(使用了{PluginName}插件，搜索了"{textToSearch})"...""");
+        context.UserMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
         
         var searchResult = await _searchService.DoSearch(textToSearch);
         var resultList = searchResult.WebPages?.Value
