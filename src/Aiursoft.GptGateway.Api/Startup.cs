@@ -26,6 +26,7 @@ public class Startup : IWebStartup
         services.AddTransient<SearchService>();
         
         services.AddScoped<IPreRequestMiddleware, FixModelMiddleware>();
+        services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
         services.AddScoped<IPlugin, SearchPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();

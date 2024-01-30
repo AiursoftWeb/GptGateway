@@ -4,6 +4,32 @@ using Aiursoft.GptGateway.Api.Models;
 
 namespace Aiursoft.GptGateway.Api.Services;
 
+/// <summary>
+/// https://platform.openai.com/docs/models/gpt-3-5
+/// </summary>
+public enum GptModel
+{
+    /// <summary>
+    ///  gpt-3.5-turbo	Currently points to gpt-3.5-turbo-0613.	4,096 tokens	Up to Sep 2021
+    /// </summary>
+    Gpt35Turbo,
+
+    /// <summary>
+    /// gpt-3.5-turbo-16k	Currently points to gpt-3.5-turbo-16k-0613.	16,385 tokens	Up to Sep 2021
+    /// </summary>
+    Gpt35Turbo16K,
+    
+    /// <summary>
+    /// gpt-4	Currently points to gpt-4-0613. See continuous model upgrades.	8,192 tokens	Up to Sep 2021
+    /// </summary>
+    Gpt4,
+    
+    /// <summary>
+    /// gpt-4-32k	Currently points to gpt-4-32k-0613. See continuous model upgrades. This model was never rolled out widely in favor of GPT-4 Turbo.	32,768 tokens	Up to Sep 2021
+    /// </summary>
+    Gpt432K,
+}
+
 public class OpenAiService
 {
     private readonly HttpClient _httpClient;
@@ -23,8 +49,21 @@ public class OpenAiService
         _instance = configuration["OpenAI:Instance"]!;
     }
     
-    public virtual async Task<CompletionData> Ask(OpenAiModel model)
+    public string ToModelString(GptModel gptModel)
     {
+        return gptModel switch
+        {
+            GptModel.Gpt35Turbo => "gpt-3.5-turbo",
+            GptModel.Gpt35Turbo16K => "gpt-3.5-turbo-16k",
+            GptModel.Gpt4 => "gpt-4",
+            GptModel.Gpt432K => "gpt-4-32k",
+            _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
+        };
+    }
+
+    public virtual async Task<CompletionData> AskModel(OpenAiModel model, GptModel gptModelType)
+    {
+        model.Model = ToModelString(gptModelType);
         if (string.IsNullOrWhiteSpace(_token))
         {
             throw new ArgumentNullException(nameof(_token));
@@ -55,7 +94,7 @@ public class OpenAiService
         }
     }
 
-    public async Task<CompletionData> Ask(params string[] content)
+    public async Task<CompletionData> AskString(GptModel gptModelType, params string[] content)
     {
         var model = new OpenAiModel
         {
@@ -65,12 +104,12 @@ public class OpenAiService
                 Role = "user"
             }).ToList()
         };
-        return await Ask(model);
+        return await AskModel(model, gptModelType);
     }
 
-    public virtual async Task<string> AskOne(string question)
+    public virtual async Task<string> AskOne(string question, GptModel gptModelType)
     {
-        var result = await Ask(question);
+        var result = await AskString(gptModelType, question);
         return result.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.";
     }
 }

@@ -12,7 +12,7 @@ public class MockOpenAiService : OpenAiService
     {
     }
 
-    public override Task<CompletionData> Ask(OpenAiModel model)
+    public override Task<CompletionData> AskModel(OpenAiModel model, GptModel gptModelType)
     {
         return Task.FromResult(new CompletionData
         {
@@ -46,7 +46,7 @@ public class MockOpenAiService : OpenAiService
         });
     }
 
-    public override Task<string> AskOne(string question)
+    public override Task<string> AskOne(string question, GptModel model)
     {
         if (question.Contains("这个问题是否适合使用搜索引擎。如果适合，请输出 `true`，否则请输出 `false`。"))
         {
@@ -57,6 +57,6 @@ public class MockOpenAiService : OpenAiService
         {
             return Task.FromResult("成年丝袜选购指南");
         }
-        return base.AskOne(question);
+        return base.AskOne(question, model);
     }
 }

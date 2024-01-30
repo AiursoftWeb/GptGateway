@@ -9,7 +9,6 @@ public class FixModelMiddleware : IPreRequestMiddleware
     {
         model.Messages = model.Messages.TakeLast(6).ToList();
         model.Stream = false;
-        model.Model = "gpt-3.5-turbo-16k";
         return Task.FromResult(model);
     }
 }

@@ -23,7 +23,7 @@ public class HomeController : ControllerBase
     
     public async Task<IActionResult> Index()
     {
-        var answer = await _openAiService.Ask("What is the meaning of life?");
+        var answer = await _openAiService.AskOne("What is the meaning of life?", GptModel.Gpt35Turbo);
         return Ok(answer);
     }
     
@@ -36,7 +36,7 @@ public class HomeController : ControllerBase
         {
             model = await middleware.PreRequest(HttpContext, model);
         }
-        var answer = await _openAiService.Ask(model);
+        var answer = await _openAiService.AskModel(model, GptModel.Gpt432K);
         foreach (var middleware in _postRequestMiddlewares)
         {
             answer = await middleware.PostRequest(HttpContext, model, answer, requestTime);

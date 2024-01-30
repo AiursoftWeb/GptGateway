@@ -4,7 +4,7 @@ namespace Aiursoft.GptGateway.Api.Models;
 
 public class OpenAiModel
 {
-    [JsonPropertyName("messages")] public List<MessagesItem> Messages { get; set; } = new List<MessagesItem>();
+    [JsonPropertyName("messages")] public List<MessagesItem> Messages { get; set; } = new();
 
     [JsonPropertyName("stream")] public bool? Stream { get; set; } = false;
 
