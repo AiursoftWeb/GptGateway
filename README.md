@@ -9,10 +9,6 @@
 
 GptGateway is a OpenAI ChatGPT API gateway.
 
-## Try
-
-Try a running GptGateway[here](https://GptGateway.aiursoft.cn).
-
 ## Run in Ubuntu
 
 The following script will install\update this app on your Ubuntu server. Supports Ubuntu 22.04.
