@@ -1,5 +1,6 @@
 using Aiursoft.GptGateway.Api.Models;
 using Aiursoft.GptGateway.Api.Services;
+using Aiursoft.GptGateway.Api.Services.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aiursoft.GptGateway.Api.Controllers;

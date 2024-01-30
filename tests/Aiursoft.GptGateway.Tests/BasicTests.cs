@@ -56,7 +56,7 @@ public class BasicTests
         {
             Messages = new List<MessagesItem>()
             {
-                new MessagesItem()
+                new()
                 {
                     Role = "user",
                     Content = "hi"

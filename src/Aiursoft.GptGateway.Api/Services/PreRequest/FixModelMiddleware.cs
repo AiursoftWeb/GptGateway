@@ -1,6 +1,7 @@
 ﻿using Aiursoft.GptGateway.Api.Models;
+using Aiursoft.GptGateway.Api.Services.Abstractions;
 
-namespace Aiursoft.GptGateway.Api.Services;
+namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
 public class FixModelMiddleware : IPreRequestMiddleware
 {

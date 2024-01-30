@@ -1,6 +1,6 @@
 ﻿using Aiursoft.GptGateway.Api.Models;
 
-namespace Aiursoft.GptGateway.Api.Services;
+namespace Aiursoft.GptGateway.Api.Services.Abstractions;
 
 public interface IPreRequestMiddleware
 {

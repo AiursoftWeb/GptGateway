@@ -14,5 +14,8 @@ public class TestStartup : Startup
         base.ConfigureServices(configuration, environment, services);
         services.RemoveAll<OpenAiService>();
         services.AddTransient<OpenAiService, MockOpenAiService>();
+        
+        services.RemoveAll<SearchService>();
+        services.AddTransient<SearchService, MockSearchService>();
     }
 }

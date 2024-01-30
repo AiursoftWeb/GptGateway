@@ -3,6 +3,10 @@ using Aiursoft.Canon;
 using Aiursoft.DbTools.Sqlite;
 using Aiursoft.GptGateway.Api.Data;
 using Aiursoft.GptGateway.Api.Services;
+using Aiursoft.GptGateway.Api.Services.Abstractions;
+using Aiursoft.GptGateway.Api.Services.Plugins;
+using Aiursoft.GptGateway.Api.Services.PostRequest;
+using Aiursoft.GptGateway.Api.Services.PreRequest;
 using Aiursoft.WebTools.Abstractions.Models;
 
 namespace Aiursoft.GptGateway.Api;
@@ -19,8 +23,11 @@ public class Startup : IWebStartup
         services.AddTaskCanon();
         services.AddHttpClient();
         services.AddTransient<OpenAiService>();
+        services.AddTransient<SearchService>();
         
         services.AddScoped<IPreRequestMiddleware, FixModelMiddleware>();
+        services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
+        services.AddScoped<IPlugin, SearchPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         
         services

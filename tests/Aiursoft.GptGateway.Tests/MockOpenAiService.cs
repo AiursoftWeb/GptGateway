@@ -45,4 +45,18 @@ public class MockOpenAiService : OpenAiService
             }
         });
     }
+
+    public override Task<string> AskOne(string question)
+    {
+        if (question.Contains("这个问题是否适合使用搜索引擎。如果适合，请输出 `true`，否则请输出 `false`。"))
+        {
+            return Task.FromResult("这个问题应该返回 true，而不是 false。");
+        }
+
+        if (question.Contains("请告诉我我应该搜索的文字。不要输出其它内容。"))
+        {
+            return Task.FromResult("成年丝袜选购指南");
+        }
+        return base.AskOne(question);
+    }
 }

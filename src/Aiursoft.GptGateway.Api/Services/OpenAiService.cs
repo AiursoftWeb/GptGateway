@@ -2,10 +2,6 @@ using System.Text;
 using System.Text.Json;
 using Aiursoft.GptGateway.Api.Models;
 
-// ReSharper disable UnusedMember.Global
-// ReSharper disable ClassNeverInstantiated.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-
 namespace Aiursoft.GptGateway.Api.Services;
 
 public class OpenAiService
@@ -70,5 +66,11 @@ public class OpenAiService
             }).ToList()
         };
         return await Ask(model);
+    }
+
+    public virtual async Task<string> AskOne(string question)
+    {
+        var result = await Ask(question);
+        return result.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.";
     }
 }

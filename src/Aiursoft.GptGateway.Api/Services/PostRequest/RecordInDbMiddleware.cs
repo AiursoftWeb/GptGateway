@@ -4,8 +4,9 @@ using Aiursoft.Canon;
 using Aiursoft.GptGateway.Api.Data;
 using Aiursoft.GptGateway.Api.Models;
 using Aiursoft.GptGateway.Api.Models.Database;
+using Aiursoft.GptGateway.Api.Services.Abstractions;
 
-namespace Aiursoft.GptGateway.Api.Services;
+namespace Aiursoft.GptGateway.Api.Services.PostRequest;
 
 public class RecordInDbMiddleware : IPostRequestMiddleware
 {
