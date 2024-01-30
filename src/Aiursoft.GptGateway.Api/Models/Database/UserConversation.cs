@@ -22,4 +22,18 @@ public class UserConversation
     public required TimeSpan Duration { get; set; }
     
     public required DateTime ConversationTime { get; set; }
+    
+    public int PromptTokens { get; set; }
+    
+    public int CompletionTokens { get; set; }
+    
+    public int TotalTokens { get; set; }
+    
+    public int PreTokenCount { get; set; }
+    
+    public int PreTotal { get; set; }
+    
+    public int AdjustTotal { get; set; }
+    
+    public int FinalTotal { get; set; }
 }

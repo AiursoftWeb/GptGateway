@@ -3,6 +3,7 @@ using System;
 using Aiursoft.GptGateway.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aiursoft.GptGateway.Api.Migrations
 {
     [DbContext(typeof(GptGatewayDbContext))]
-    partial class GptGatewayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240130155212_TrackMoreProperties")]
+    partial class TrackMoreProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.15");
