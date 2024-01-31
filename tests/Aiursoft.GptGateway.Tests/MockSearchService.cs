@@ -10,7 +10,7 @@ public class MockSearchService : SearchService
     {
     }
     
-    public override Task<SearchResponse> DoSearch(string question, int page = 1)
+    public override Task<SearchResponse> DoSearch(string question, int count = 12)
     {
         return Task.FromResult(new SearchResponse());
     }
