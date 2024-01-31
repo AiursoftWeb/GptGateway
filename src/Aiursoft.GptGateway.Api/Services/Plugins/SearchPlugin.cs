@@ -84,6 +84,6 @@ public class SearchPlugin : IPlugin
                           """).ToArray();
         var formattedResult = resultList?.Any() ?? false ? string.Join("\n", resultList) : "没有搜索到任何结果。";
         
-        return string.Format(_answerPrompt, textToSearch, formattedResult, question);
+        return string.Format(_answerPrompt, textToSearch, formattedResult, finalQuestion);
     }
 }
