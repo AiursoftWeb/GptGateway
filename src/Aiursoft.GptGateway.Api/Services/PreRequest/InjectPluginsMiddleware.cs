@@ -40,7 +40,7 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
         }
         
         conv.ToolsUsed.Add(bestPlugin.plugin.PluginName);
-        var message = await bestPlugin.plugin.GetPluginAppendedMessage(model.Messages.LastOrDefault()?.Content!, conv);
+        var message = await bestPlugin.plugin.GetPluginAppendedMessage(model, conv);
         
         // Replace the last message.
         model.Messages[^1] = new MessagesItem

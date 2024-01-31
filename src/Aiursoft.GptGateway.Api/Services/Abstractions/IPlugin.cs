@@ -8,5 +8,5 @@ public interface IPlugin
     
     Task<int> GetUsagePoint(OpenAiModel model);
     
-    Task<string> GetPluginAppendedMessage(string question, ConversationContext context);
+    Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context);
 }

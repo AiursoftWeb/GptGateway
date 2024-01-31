@@ -29,17 +29,13 @@ public class SearchPlugin : IPlugin
     
     public async Task<int> GetUsagePoint(OpenAiModel model)
     {
-        var finalQuestion = model.Messages.LastOrDefault()?.Content;
-        var formattedFinalQuestion = string.Format(_shouldUse, finalQuestion);
         var messages = model.Messages
             .Where(m => m.Role == "user")
             .TakeLast(4)
             .ToArray();
-        messages[^1] = new MessagesItem
-        {
-            Role = "user",
-            Content = formattedFinalQuestion,
-        };
+        var finalQuestion = model.Messages.LastOrDefault()?.Content;
+        var formattedFinalQuestion = string.Format(_shouldUse, finalQuestion);
+        messages[^1].Content = formattedFinalQuestion;
         var requestModel = new OpenAiModel
         {
             Messages = messages.ToList(),
@@ -60,10 +56,22 @@ public class SearchPlugin : IPlugin
         return truePosition < falsePosition ? 60 : 0;
     }
 
-    public async Task<string> GetPluginAppendedMessage(string question, ConversationContext context)
+    public async Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context)
     {
-        var getSearchEntityPrompt = string.Format(_getSearchEntityPrompt, question);
-        var textToSearch = (await _openAiService.AskOne(getSearchEntityPrompt, GptModel.Gpt4)).Trim('\"');
+        var messages = model.Messages
+            .Where(m => m.Role == "user")
+            .TakeLast(4)
+            .ToArray();
+        var finalQuestion = model.Messages.LastOrDefault()?.Content;
+        var formattedFinalQuestion = string.Format(_getSearchEntityPrompt, finalQuestion);
+        messages[^1].Content = formattedFinalQuestion;
+        var requestModel = new OpenAiModel
+        {
+            Messages = messages.ToList(),
+        };
+
+        var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt4);
+        var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!.Trim('\"').Trim();
         context.UserMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
         
         var searchResult = await _searchService.DoSearch(textToSearch);
