@@ -35,7 +35,11 @@ public class SearchPlugin : IPlugin
             .ToArray();
         var finalQuestion = model.Messages.LastOrDefault()?.Content;
         var formattedFinalQuestion = string.Format(_shouldUse, finalQuestion);
-        messages[^1].Content = formattedFinalQuestion;
+        messages[^1] = new MessagesItem
+        {
+            Role = "user",
+            Content = formattedFinalQuestion,
+        };
         var requestModel = new OpenAiModel
         {
             Messages = messages.ToList(),
@@ -64,7 +68,11 @@ public class SearchPlugin : IPlugin
             .ToArray();
         var finalQuestion = model.Messages.LastOrDefault()?.Content;
         var formattedFinalQuestion = string.Format(_getSearchEntityPrompt, finalQuestion);
-        messages[^1].Content = formattedFinalQuestion;
+        messages[^1] = new MessagesItem
+        {
+            Role = "user",
+            Content = formattedFinalQuestion,
+        };
         var requestModel = new OpenAiModel
         {
             Messages = messages.ToList(),
