@@ -8,7 +8,7 @@ public class SearchPlugin : IPlugin
     public string PluginName => "搜索插件";
     
     private const string _shouldUse =
-        "你是一个旨在解决人类问题的人工智能。现在我遇到了一个问题\n\n```\n{0}\n```\n\n虽然你的知识是固定的，但是面对一些需要实时性信息和关于一些可能变化的对象，我可以帮助你使用搜索引擎，查找一些关键词汇来得到更多背景知识，再结合搜索的结果得出答案。\n\n现在，我需要你帮我判断，这个问题是否含有一些不了解的或需要实时信息的实体，使得我们应该搜索引擎来解决。如果适合，请输出 `true`，否则请输出 `false`。不要输出其它内容。";
+        "你是一个旨在解决人类问题的人工智能。现在我遇到了一个问题\n\n```\n{0}\n```\n\n虽然你的知识是固定的，但是面对一些需要实时性信息和关于一些可能变化的对象，我可以帮助你使用搜索引擎，查找一些关键词汇来得到更多背景知识，再结合搜索的结果得出答案。\n\n现在，我需要你帮我判断，这个问题是否含有一些不明确了解的或需要实时信息的实体，使得我们应该搜索引擎来解决。如果适合，请输出 `true`，否则请输出 `false`。不要输出其它内容。";
 
     private const string _getSearchEntityPrompt =
         "你是一个旨在解决人类问题的人工智能。现在我正在调查问题\n\n```\n{0}\n```\n\n我计划先使用搜索引擎搜索一些背景。可是，我并不知道我应该搜索什么。请直接输出一个适合搜索引擎用于搜索的词条。不要输出其它内容。";
@@ -64,7 +64,7 @@ public class SearchPlugin : IPlugin
     {
         var messages = model.Messages
             .Where(m => m.Role == "user")
-            .TakeLast(4)
+            .TakeLast(8)
             .ToArray();
         var finalQuestion = model.Messages.LastOrDefault()?.Content;
         var formattedFinalQuestion = string.Format(_getSearchEntityPrompt, finalQuestion);
