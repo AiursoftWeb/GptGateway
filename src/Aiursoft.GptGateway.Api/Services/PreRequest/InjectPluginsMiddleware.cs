@@ -24,7 +24,7 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
         {
             _canonPool.RegisterNewTaskToPool(async () =>
             {
-                var usagePoint = await plugin.GetUsagePoint(model.Messages.LastOrDefault()?.Content!);
+                var usagePoint = await plugin.GetUsagePoint(model);
                 if (usagePoint > 0)
                 {
                     pluginRanks.Add((plugin, usagePoint));

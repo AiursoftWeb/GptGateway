@@ -8,7 +8,7 @@ public class SearchPlugin : IPlugin
     public string PluginName => "搜索插件";
     
     private const string _shouldUse =
-        "你是一个旨在解决人类问题的人工智能。现在我正在调查问题\n\n```\n{0}\n```\n\n面对某些问题，尤其是我们不了解的问题，我们可能需要使用搜索引擎，查找一些关键词汇，得到更多背景知识，再结合搜索的结果得出答案。\n\n现在，我需要你帮我判断，这个问题是否含有一些非常不了解的实体，使得我们应该搜索引擎来解决。如果适合，请输出 `true`，否则请输出 `false`。不要输出其它内容。";
+        "你是一个旨在解决人类问题的人工智能。现在我遇到了一个问题\n\n```\n{0}\n```\n\n虽然你的知识是固定的，但是面对一些需要实时性信息和关于一些可能变化的对象，我可以帮助你使用搜索引擎，查找一些关键词汇来得到更多背景知识，再结合搜索的结果得出答案。\n\n现在，我需要你帮我判断，这个问题是否含有一些不了解的或需要实时信息的实体，使得我们应该搜索引擎来解决。如果适合，请输出 `true`，否则请输出 `false`。不要输出其它内容。";
 
     private const string _getSearchEntityPrompt =
         "你是一个旨在解决人类问题的人工智能。现在我正在调查问题\n\n```\n{0}\n```\n\n我计划先使用搜索引擎搜索一些背景。可是，我并不知道我应该搜索什么。请直接输出一个适合搜索引擎用于搜索的词条。不要输出其它内容。";
@@ -27,11 +27,28 @@ public class SearchPlugin : IPlugin
         _openAiService = openAiService;
     }
     
-    public async Task<int> GetUsagePoint(string question)
+    public async Task<int> GetUsagePoint(OpenAiModel model)
     {
-        var shouldSearch = await _openAiService.AskOne(string.Format(_shouldUse, question), GptModel.Gpt35Turbo);
-        var truePosition = shouldSearch.IndexOf("true", StringComparison.Ordinal);
-        var falsePosition = shouldSearch.IndexOf("false", StringComparison.Ordinal);
+        var finalQuestion = model.Messages.LastOrDefault()?.Content;
+        var formattedFinalQuestion = string.Format(_shouldUse, finalQuestion);
+        var messages = model.Messages
+            .Where(m => m.Role == "user")
+            .TakeLast(4)
+            .ToArray();
+        messages[^1] = new MessagesItem
+        {
+            Role = "user",
+            Content = formattedFinalQuestion,
+        };
+        var requestModel = new OpenAiModel
+        {
+            Messages = messages.ToList(),
+        };
+
+        var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt432K);
+        var shouldSearchOutput = shouldSearch.Choices.FirstOrDefault()!.Message!.Content!;
+        var truePosition = shouldSearchOutput.IndexOf("true", StringComparison.Ordinal);
+        var falsePosition = shouldSearchOutput.IndexOf("false", StringComparison.Ordinal);
         if (truePosition == -1)
         {
             return 0;
