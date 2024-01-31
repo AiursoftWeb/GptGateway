@@ -69,8 +69,7 @@ public class SearchPlugin : IPlugin
     public async Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context)
     {
         var messages = model.Messages
-            .Where(m => m.Role == "user")
-            .TakeLast(8)
+            .TakeLast(12)
             .ToArray();
         var finalQuestion = model.Messages.LastOrDefault()?.Content;
         var formattedFinalQuestion = string.Format(_getSearchEntityPrompt, finalQuestion);
