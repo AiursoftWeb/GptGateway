@@ -22,6 +22,7 @@ public class Startup : IWebStartup
 
         services.AddTaskCanon();
         services.AddHttpClient();
+        services.AddTransient<QuestionReformatService>();
         services.AddTransient<OpenAiService>();
         services.AddTransient<SearchService>();
         
@@ -29,6 +30,7 @@ public class Startup : IWebStartup
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
         services.AddScoped<IPlugin, SearchPlugin>();
+        services.AddScoped<IPlugin, WikiPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
         services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();
