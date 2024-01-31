@@ -15,20 +15,24 @@ public class SearchPlugin : IPlugin
 
     private const string _answerPrompt =
         "你是一个旨在解决人类问题的人工智能。现在我正在调查一个问题。在调查之前，我使用搜索引擎，搜索了 `{0}`。下面是Bing搜索的结果。\n\n\n{1}\n\n 现在，结合上述搜索结果，回答真正调查的问题：\n\n```\n{2}\n```";
-    
+
+    private readonly ILogger<SearchPlugin> _logger;
     private readonly SearchService _searchService;
     private readonly OpenAiService _openAiService;
 
     public SearchPlugin(
+        ILogger<SearchPlugin> logger,
         SearchService searchService,
         OpenAiService openAiService)
     {
+        _logger = logger;
         _searchService = searchService;
         _openAiService = openAiService;
     }
     
     public async Task<int> GetUsagePoint(OpenAiModel model)
     {
+        _logger.LogInformation("Calculating usage point for search plugin. Question: {0}", model.Messages.LastOrDefault()?.Content);
         var messages = model.Messages
             .Where(m => m.Role == "user")
             .TakeLast(4)
@@ -47,6 +51,8 @@ public class SearchPlugin : IPlugin
 
         var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt432K);
         var shouldSearchOutput = shouldSearch.Choices.FirstOrDefault()!.Message!.Content!;
+        
+        _logger.LogInformation("Search plugin output: {0}", shouldSearchOutput);
         var truePosition = shouldSearchOutput.IndexOf("true", StringComparison.Ordinal);
         var falsePosition = shouldSearchOutput.IndexOf("false", StringComparison.Ordinal);
         if (truePosition == -1)
@@ -80,6 +86,8 @@ public class SearchPlugin : IPlugin
 
         var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt4);
         var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!.Trim('\"').Trim();
+        _logger.LogInformation("Search plugin output: {0}", textToSearch);
+        
         context.UserMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
         
         var searchResult = await _searchService.DoSearch(textToSearch);
