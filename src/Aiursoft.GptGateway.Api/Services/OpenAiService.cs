@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Aiursoft.CSTools.Tools;
 using Aiursoft.GptGateway.Api.Models;
 
 namespace Aiursoft.GptGateway.Api.Services;
@@ -85,12 +86,25 @@ public class OpenAiService
             response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
             var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
+            
+            _logger.LogInformation("Asked OpenAi. Request last question: {0}. Response last answer: {1}.",
+                model.Messages.LastOrDefault()?.Content?.SafeSubstring(30),
+                responseModel?.Choices.FirstOrDefault()?.Message?.Content?.SafeSubstring(30));
             return responseModel!;
         }
         catch (HttpRequestException raw)
         {
             var remoteError = await response.Content.ReadAsStringAsync();
+            
+            _logger.LogError("Asked OpenAi failed. Request last question: {0}. Response last answer: {1}.",
+                model.Messages.LastOrDefault()?.Content?.SafeSubstring(30),
+                remoteError.SafeSubstring(30));
             throw new HttpRequestException(remoteError, raw);
+        }
+        // ReSharper disable once RedundantEmptyFinallyBlock
+        finally
+        {
+            // TODO: Insert to database.
         }
     }
 
