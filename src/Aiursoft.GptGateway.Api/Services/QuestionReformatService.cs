@@ -1,6 +1,6 @@
 using Aiursoft.GptGateway.Api.Models;
 
-namespace Aiursoft.GptGateway.Api.Services.Plugins;
+namespace Aiursoft.GptGateway.Api.Services;
 
 public class QuestionReformatService
 {
@@ -11,9 +11,9 @@ public class QuestionReformatService
         _logger = logger;
     }
     
-    public OpenAiModel Reformat(OpenAiModel model, string formatter, int take, bool includeSystemMessage, out string lastRawQuestion)
+    public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion)
     {
-        _logger.LogInformation("Calculating usage point for search plugin. Question: {0}", model.Messages.LastOrDefault()?.Content);
+        _logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
         var messagesQuery = model.Messages.AsEnumerable();
         if (!includeSystemMessage)
         {
@@ -23,7 +23,7 @@ public class QuestionReformatService
         var messages = messagesQuery.ToArray();
         
         lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
-        var formattedFinalQuestion = string.Format(formatter, lastRawQuestion);
+        var formattedFinalQuestion = string.Format(template, lastRawQuestion);
         messages[^1] = new MessagesItem
         {
             Role = "user",

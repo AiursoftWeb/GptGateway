@@ -14,7 +14,7 @@ public class SearchService
         _searchApiKey = configuration["BingSearchAPIKey"]!;
     }
 
-    public virtual async Task<SearchResponse> DoSearch(string question, int count = 12)
+    public virtual async Task<SearchResponse> DoSearch(string question, int count = 10)
     {
         var credential = new ApiKeyServiceClientCredentials(_searchApiKey);
         var client = new WebSearchClient(credential);
@@ -27,6 +27,7 @@ public class SearchService
     }
 }
 
+// TODO: Move to CS Tools!
 public static class ReflectionExtensions
 {
     /// <summary>

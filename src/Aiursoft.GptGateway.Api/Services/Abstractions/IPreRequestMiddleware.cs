@@ -4,5 +4,5 @@ namespace Aiursoft.GptGateway.Api.Services.Abstractions;
 
 public interface IPreRequestMiddleware
 {
-    Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model, ConversationContext conv);
+    Task PreRequest(ConversationContext conv);
 }

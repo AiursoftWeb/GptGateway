@@ -6,7 +6,7 @@ public interface IPlugin
 {
     string PluginName { get; }
     
-    Task<int> GetUsagePoint(OpenAiModel model);
+    Task<int> GetUsagePoint(OpenAiModel input);
     
-    Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context);
+    Task<string> GetPluginAppendedMessage(ConversationContext context);
 }

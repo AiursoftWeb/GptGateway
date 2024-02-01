@@ -12,6 +12,9 @@ public class UserConversation
     
     [MaxLength(128)]
     public required string RequestUserAgent { get; set; }
+
+    [MaxLength(65536)]
+    public required string LastQuestion { get; set; }
     
     [MaxLength(65536)]
     public required string Questions { get; set; }

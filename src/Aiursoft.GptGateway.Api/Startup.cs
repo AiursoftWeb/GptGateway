@@ -26,11 +26,12 @@ public class Startup : IWebStartup
         services.AddTransient<OpenAiService>();
         services.AddTransient<SearchService>();
         
-        services.AddScoped<IPreRequestMiddleware, FixModelMiddleware>();
+        services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
         services.AddScoped<IPlugin, SearchPlugin>();
-        services.AddScoped<IPlugin, WikiPlugin>();
+        
+        //services.AddScoped<IPlugin, WikiPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
         services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();

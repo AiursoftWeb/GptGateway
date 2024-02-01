@@ -21,26 +21,27 @@ public class RecordInDbMiddleware : IPostRequestMiddleware
         _canonQueue = canonQueue;
     }
     
-    public Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime, ConversationContext conv)
+    public Task PostRequest(ConversationContext conv)
     {
         var userConversation = new UserConversation
         {
-            RequestIpAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-            RequestUserAgent = context.Request.Headers["User-Agent"].ToString(),
-            Questions = JsonSerializer.Serialize(model.Messages.Select(m => m.Content), new JsonSerializerOptions
+            RequestIpAddress = conv.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+            RequestUserAgent = conv.HttpContext.Request.Headers["User-Agent"].ToString(),
+            Questions = JsonSerializer.Serialize(conv.RawInput.Messages, new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             }),
-            Answer = data.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.",
-            Duration = DateTime.UtcNow - requestTime,
+            LastQuestion = conv.RawInput.Messages.LastOrDefault()?.Content ?? "No question.",
+            Answer = conv.Output!.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.",
+            Duration = DateTime.UtcNow - conv.RequestTime,
             ConversationTime = DateTime.UtcNow,
-            PromptTokens = data.Usage?.PromptTokens ?? 0,
-            CompletionTokens = data.Usage?.CompletionTokens ?? 0,
-            TotalTokens = data.Usage?.TotalTokens ?? 0,
-            PreTokenCount = data.Usage?.PreTokenCount ?? 0,
-            PreTotal = data.Usage?.PreTotal ?? 0,
-            AdjustTotal = data.Usage?.AdjustTotal ?? 0,
-            FinalTotal = data.Usage?.FinalTotal ?? 0,
+            PromptTokens = conv.Output!.Usage?.PromptTokens ?? 0,
+            CompletionTokens = conv.Output!.Usage?.CompletionTokens ?? 0,
+            TotalTokens = conv.Output!.Usage?.TotalTokens ?? 0,
+            PreTokenCount = conv.Output!.Usage?.PreTokenCount ?? 0,
+            PreTotal = conv.Output!.Usage?.PreTotal ?? 0,
+            AdjustTotal = conv.Output!.Usage?.AdjustTotal ?? 0,
+            FinalTotal = conv.Output!.Usage?.FinalTotal ?? 0,
         };
         
         _canonQueue.QueueWithDependency<GptGatewayDbContext>(async db =>
@@ -50,7 +51,6 @@ public class RecordInDbMiddleware : IPostRequestMiddleware
             
             _logger.LogInformation("Recorded a conversation from {Ip}.", userConversation.RequestIpAddress);
         });
-        
-        return Task.FromResult(data);
+        return Task.CompletedTask;
     }
 }

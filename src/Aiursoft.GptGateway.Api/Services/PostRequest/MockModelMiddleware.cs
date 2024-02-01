@@ -5,9 +5,9 @@ namespace Aiursoft.GptGateway.Api.Services.PostRequest;
 
 public class MockModelMiddleware : IPostRequestMiddleware
 {
-    public Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime, ConversationContext conv)
+    public Task PostRequest(ConversationContext conv)
     {
-        data.Model = "aiursoft-chat";
-        return Task.FromResult(data);
+        conv.Output!.Model = "aiursoft-chat";
+        return Task.CompletedTask;
     }
 }

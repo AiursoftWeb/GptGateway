@@ -5,11 +5,11 @@ namespace Aiursoft.GptGateway.Api.Services.PostRequest;
 
 public class ShowPluginUsageMiddleware : IPostRequestMiddleware
 {
-    public Task<CompletionData> PostRequest(HttpContext context, OpenAiModel model, CompletionData data, DateTime requestTime, ConversationContext conv)
+    public Task PostRequest(ConversationContext conv)
     {
-        var messages = string.Join("\n", conv.UserMessages); 
+        var messages = string.Join("\n", conv.PluginMessages); 
             
-        data.Choices.FirstOrDefault()!.Message!.Content = $"{messages}\n\n{data.Choices.FirstOrDefault()!.Message!.Content}";
-        return Task.FromResult(data);
+        conv.Output!.Choices.FirstOrDefault()!.Message!.Content = $"{messages}\n\n{conv.Output!.Choices.FirstOrDefault()!.Message!.Content}";
+        return Task.CompletedTask;
     }
 }

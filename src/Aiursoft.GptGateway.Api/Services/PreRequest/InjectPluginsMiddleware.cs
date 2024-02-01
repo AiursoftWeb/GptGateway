@@ -17,14 +17,14 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
         _plugins = plugins;
     }
 
-    public async Task<OpenAiModel> PreRequest(HttpContext context, OpenAiModel model, ConversationContext conv)
+    public async Task PreRequest(ConversationContext conv)
     {
         var pluginRanks = new List<(IPlugin plugin, int rank)>();
         foreach (var plugin in _plugins)
         {
             _canonPool.RegisterNewTaskToPool(async () =>
             {
-                var usagePoint = await plugin.GetUsagePoint(model);
+                var usagePoint = await plugin.GetUsagePoint(conv.ModifiedInput);
                 if (usagePoint > 0)
                 {
                     pluginRanks.Add((plugin, usagePoint));
@@ -36,18 +36,18 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
         var bestPlugin = pluginRanks.OrderByDescending(t => t.rank).FirstOrDefault();
         if (bestPlugin.plugin == null)
         {
-            return model;
+            return;
         }
         
         conv.ToolsUsed.Add(bestPlugin.plugin.PluginName);
-        var message = await bestPlugin.plugin.GetPluginAppendedMessage(model, conv);
+        var message = await bestPlugin.plugin.GetPluginAppendedMessage(conv);
         
+        // TODO: May not replace but insert. Multiple plugins may be used at the same time.
         // Replace the last message.
-        model.Messages[^1] = new MessagesItem
+        conv.ModifiedInput.Messages[^1] = new MessagesItem
         {
             Role = "user",
             Content = message,
         };
-        return model;
     }
 }

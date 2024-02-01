@@ -31,16 +31,21 @@ public class HomeController : ControllerBase
     [Route("/v1/chat/completions")]
     public async Task<IActionResult> Ask([FromBody] OpenAiModel model)
     {
-        var requestTime = DateTime.UtcNow;
-        var context = new ConversationContext();
+        var context = new ConversationContext
+        {
+            HttpContext = HttpContext,
+            RawInput = model,
+            ModifiedInput = model,
+            Output = null
+        };
         foreach (var middleware in _preRequestMiddlewares)
         {
-            model = await middleware.PreRequest(HttpContext, model, context);
+            await middleware.PreRequest(context);
         }
         var answer = await _openAiService.AskModel(model, GptModel.Gpt35Turbo16K);
         foreach (var middleware in _postRequestMiddlewares)
         {
-            answer = await middleware.PostRequest(HttpContext, model, answer, requestTime, context);
+            await middleware.PostRequest(context);
         }
         return Ok(answer);
     }

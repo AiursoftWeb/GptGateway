@@ -3,30 +3,6 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.Plugins;
 
-public class WikiPlugin : IPlugin
-{
-    private readonly ILogger<WikiPlugin> _logger;
-    public string PluginName => "维基百科插件";
-    
-    private const string ShouldUse =
-        "你是一个旨在解决人类问题的人工智能。现在我遇到了一个问题\n\n```\n{0}\n```\n\n我无法阅读上面这个问题，但是对于正在探索一个名词概念的类型的问题，我可以访问维基百科。我需要你帮我判断一下这个问题是否值得检索一下维基百科。如果它有明确的正在研究的实体并且需要一些解释，请输出 `true`，否则请输出 `false`。不要输出其它内容。";
-
-    public WikiPlugin(ILogger<WikiPlugin> logger)
-    {
-        _logger = logger;
-    }
-
-    public async Task<int> GetUsagePoint(OpenAiModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 public class SearchPlugin : IPlugin
 {
     public string PluginName => "搜索插件";
@@ -57,23 +33,33 @@ public class SearchPlugin : IPlugin
         _openAiService = openAiService;
     }
     
-    public async Task<int> GetUsagePoint(OpenAiModel model)
+    public async Task<int> GetUsagePoint(OpenAiModel input)
     {
-        var requestModel = _questionReformatService.Reformat(model, ShouldUse, 4, false, out var _);
+        var requestModel = _questionReformatService.Map(
+            input,
+            ShouldUse,
+            4,
+            false,
+            out var _);
 
         var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt432K);
         
         return _questionReformatService.ConvertResponseToScore(shouldSearch);
     }
 
-    public async Task<string> GetPluginAppendedMessage(OpenAiModel model, ConversationContext context)
+    public async Task<string> GetPluginAppendedMessage(ConversationContext context)
     {
-        var requestModel = _questionReformatService.Reformat(model, GetSearchEntityPrompt, 12, true, out var rawQuestion);
+        var requestModel = _questionReformatService.Map(
+            model: context.ModifiedInput,
+            template: GetSearchEntityPrompt, 
+            take: 12,
+            includeSystemMessage: true,
+            out var rawQuestion);
         var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt4);
         var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!.Trim('\"').Trim();
-        _logger.LogInformation("Search plugin output: {0}", textToSearch);
+        _logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
         
-        context.UserMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
+        context.PluginMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
         
         var searchResult = await _searchService.DoSearch(textToSearch);
         var resultList = searchResult.WebPages?.Value
