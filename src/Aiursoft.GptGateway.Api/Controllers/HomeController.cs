@@ -43,6 +43,7 @@ public class HomeController : ControllerBase
             await middleware.PreRequest(context);
         }
         var answer = await _openAiService.AskModel(model, GptModel.Gpt35Turbo16K);
+        context.Output = answer;
         foreach (var middleware in _postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
