@@ -48,15 +48,15 @@ public class QuestionReformatService
         // Has false no true, return 0
         // Has true and false, return 40 if true is before false, otherwise return 0
         // Has no true and false, return 10
-        if (truePosition > 0 && falsePosition == -1)
+        if (truePosition >= 0 && falsePosition == -1)
         {
             return 70;
         }
-        if (falsePosition > 0 && truePosition == -1)
+        if (falsePosition >= 0 && truePosition == -1)
         {
             return 0;
         }
-        if (truePosition > 0 && falsePosition > 0)
+        if (truePosition >= 0 && falsePosition >= 0)
         {
             return truePosition < falsePosition ? 40 : 0;
         }
