@@ -11,10 +11,12 @@ public class QuestionReformatService
         _logger = logger;
     }
     
-    public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion)
+    public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion, bool mergeAsOne = false)
     {
         _logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
         var messagesQuery = model.Messages.AsEnumerable();
+        lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
+
         if (!includeSystemMessage)
         {
             messagesQuery = messagesQuery.Where(m => m.Role == "user");
@@ -22,19 +24,34 @@ public class QuestionReformatService
         messagesQuery = messagesQuery.TakeLast(take);
         var messages = messagesQuery.ToArray();
         
-        lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
-        var formattedFinalQuestion = string.Format(template, lastRawQuestion);
-        messages[^1] = new MessagesItem
+        if (mergeAsOne)
         {
-            Role = "user",
-            Content = formattedFinalQuestion,
-        };
-        var requestModel = new OpenAiModel
+            var mergedContent = string.Join("\n", messages.Select(m => m.Content));
+            return new OpenAiModel
+            {
+                Messages = new List<MessagesItem>
+                {
+                    new()
+                    {
+                        Role = "user",
+                        Content = string.Format(template, mergedContent),
+                    }
+                }
+            };
+        }
+        else
         {
-            Messages = messages.ToList(),
-        };
-        
-        return requestModel;
+            var messagesArray = messages.ToArray();
+            messagesArray[^1] = new MessagesItem
+            {
+                Role = "user",
+                Content = string.Format(template, messagesArray[^1].Content),
+            };
+            return new OpenAiModel
+            {
+                Messages = messagesArray.ToList(),
+            };
+        }
     }
     
     public int ConvertResponseToScore(CompletionData response)

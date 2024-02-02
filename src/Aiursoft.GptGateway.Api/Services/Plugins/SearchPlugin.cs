@@ -52,9 +52,10 @@ public class SearchPlugin : IPlugin
         var requestModel = _questionReformatService.Map(
             model: context.ModifiedInput,
             template: GetSearchEntityPrompt, 
-            take: 12,
+            take: 5,
             includeSystemMessage: true,
-            out var rawQuestion);
+            out var rawQuestion,
+            mergeAsOne: true);
         var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt4);
         var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!.Trim('\"').Trim();
         _logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
