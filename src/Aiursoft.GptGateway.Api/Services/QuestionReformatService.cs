@@ -15,7 +15,8 @@ public class QuestionReformatService
     {
         _logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
         var messagesQuery = model.Messages
-            .Where(m => !m.IsInjected);
+            //.Where(m => !m.IsInjected);
+            .AsEnumerable();
         lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
 
         if (!includeSystemMessage)
