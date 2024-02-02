@@ -39,7 +39,7 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
             return;
         }
         
-        conv.ToolsUsed.Add(bestPlugin.plugin.PluginName);
+        conv.ToolsUsed.Add(bestPlugin.plugin);
         var message = await bestPlugin.plugin.GetPluginAppendedMessage(conv);
         
         // TODO: May not replace but insert. Multiple plugins may be used at the same time.

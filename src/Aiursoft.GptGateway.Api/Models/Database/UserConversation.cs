@@ -22,6 +22,9 @@ public class UserConversation
     [MaxLength(65536)]
     public required string Answer { get; set; }
     
+    [MaxLength(1024)]
+    public required string ToolsUsed { get; set; }
+    
     public required TimeSpan Duration { get; set; }
     
     public required DateTime ConversationTime { get; set; }

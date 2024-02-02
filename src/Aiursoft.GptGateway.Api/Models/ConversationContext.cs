@@ -1,10 +1,12 @@
-﻿namespace Aiursoft.GptGateway.Api.Models;
+﻿using Aiursoft.GptGateway.Api.Services.Abstractions;
+
+namespace Aiursoft.GptGateway.Api.Models;
 
 public class ConversationContext
 {
     public DateTime RequestTime { get; init; } = DateTime.UtcNow;
     
-    public List<string> ToolsUsed { get; init; } = new();
+    public List<IPlugin> ToolsUsed { get; init; } = new();
     
     public List<string> PluginMessages { get; init; } = new();
     
