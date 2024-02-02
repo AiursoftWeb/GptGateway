@@ -42,12 +42,11 @@ public class HomeController : ControllerBase
         {
             await middleware.PreRequest(context);
         }
-        var answer = await _openAiService.AskModel(model, GptModel.Gpt35Turbo16K);
-        context.Output = answer;
+        context.Output = await _openAiService.AskModel(model, GptModel.Gpt35Turbo16K);
         foreach (var middleware in _postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
         }
-        return Ok(answer);
+        return Ok(context.Output);
     }
 }
