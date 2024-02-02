@@ -4,7 +4,6 @@
 [![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/commits/master?ref_type=heads)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fchat.aiursoft.cn%2F)](https://chat.aiursoft.cn)
 [![Docker](https://img.shields.io/badge/docker-latest-blue?logo=docker)](https://hub.aiursoft.cn/#!/taglist/aiursoft/GptGateway)
 
 GptGateway is a OpenAI ChatGPT API gateway.
