@@ -3,6 +3,7 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
+// TODO: When we can correctly split the token, remove this.
 public class TrimInputMiddleware : IPreRequestMiddleware
 {
     public Task PreRequest(ConversationContext conv)
