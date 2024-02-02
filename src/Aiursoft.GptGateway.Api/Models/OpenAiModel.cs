@@ -13,4 +13,16 @@ public class OpenAiModel
     [JsonPropertyName("temperature")] public double? Temperature { get; set; } = 0.5;
 
     [JsonPropertyName("presence_penalty")] public int? PresencePenalty { get; set; } = 0;
+
+    public OpenAiModel Clone()
+    {
+        return new OpenAiModel
+        {
+            Messages = Messages.Select(m => m.Clone()).ToList(),
+            Stream = Stream,
+            Model = Model,
+            Temperature = Temperature,
+            PresencePenalty = PresencePenalty
+        };
+    }
 }

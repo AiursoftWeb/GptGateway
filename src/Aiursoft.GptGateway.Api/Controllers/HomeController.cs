@@ -29,20 +29,20 @@ public class HomeController : ControllerBase
     
     [HttpPost]
     [Route("/v1/chat/completions")]
-    public async Task<IActionResult> Ask([FromBody] OpenAiModel model)
+    public async Task<IActionResult> Ask([FromBody] OpenAiModel rawInput)
     {
         var context = new ConversationContext
         {
             HttpContext = HttpContext,
-            RawInput = model,
-            ModifiedInput = model,
+            RawInput = rawInput,
+            ModifiedInput = rawInput.Clone(),
             Output = null
         };
         foreach (var middleware in _preRequestMiddlewares)
         {
             await middleware.PreRequest(context);
         }
-        context.Output = await _openAiService.AskModel(model, GptModel.Gpt35Turbo16K);
+        context.Output = await _openAiService.AskModel(context.ModifiedInput, GptModel.Gpt35Turbo16K);
         foreach (var middleware in _postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
