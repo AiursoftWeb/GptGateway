@@ -14,12 +14,14 @@ public class QuestionReformatService
     public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion, bool mergeAsOne = false)
     {
         _logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
-        var messagesQuery = model.Messages.AsEnumerable();
+        var messagesQuery = model.Messages
+            .Where(m => !m.IsInjected);
         lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
 
         if (!includeSystemMessage)
         {
-            messagesQuery = messagesQuery.Where(m => m.Role == "user");
+            messagesQuery = messagesQuery
+                .Where(m => m.Role == "user");
         }
         messagesQuery = messagesQuery.TakeLast(take);
         var messages = messagesQuery.ToArray();

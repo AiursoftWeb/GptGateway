@@ -7,6 +7,8 @@ public class MessagesItem
     [JsonPropertyName("role")] public string? Role { get; set; }
 
     [JsonPropertyName("content")] public string? Content { get; set; }
+
+    [JsonIgnore] public bool IsInjected { get; set; } = false;
     
     public MessagesItem Clone()
     {
