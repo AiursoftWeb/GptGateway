@@ -15,7 +15,8 @@ public class MessagesItem
         return new MessagesItem
         {
             Role = Role,
-            Content = Content
+            Content = Content,
+            IsInjected = IsInjected
         };
     }
 }
