@@ -1,5 +1,6 @@
 using Aiursoft.GptGateway.Api;
 using Aiursoft.GptGateway.Api.Services;
+using Aiursoft.GptGateway.Tests.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

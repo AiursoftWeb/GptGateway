@@ -3,7 +3,7 @@ using Aiursoft.GptGateway.Api.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Aiursoft.GptGateway.Tests;
+namespace Aiursoft.GptGateway.Tests.Services;
 
 public class MockOpenAiService : OpenAiService
 {

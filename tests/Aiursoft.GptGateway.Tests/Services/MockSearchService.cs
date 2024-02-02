@@ -2,7 +2,7 @@
 using Microsoft.Azure.CognitiveServices.Search.WebSearch.Models;
 using Microsoft.Extensions.Configuration;
 
-namespace Aiursoft.GptGateway.Tests;
+namespace Aiursoft.GptGateway.Tests.Services;
 
 public class MockSearchService : SearchService
 {
