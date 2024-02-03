@@ -61,6 +61,12 @@ public class SearchPlugin : IPlugin
             false,
             out var _);
 
+        var longRequest = string.Join(',', requestModel.Messages.Select(m => m.Content)).Length > 800;
+        if (longRequest)
+        {
+            return 0;
+        }
+
         var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt432K);
 
         return _questionReformatService.ConvertResponseToScore(shouldSearch);
