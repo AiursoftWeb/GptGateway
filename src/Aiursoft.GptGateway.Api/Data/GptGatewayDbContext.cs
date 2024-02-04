@@ -10,4 +10,6 @@ public class GptGatewayDbContext : DbContext
     }
     
     public DbSet<UserConversation> UserConversations => Set<UserConversation>();
+    
+    public DbSet<OpenAiRequest> OpenAiRequests => Set<OpenAiRequest>();
 }

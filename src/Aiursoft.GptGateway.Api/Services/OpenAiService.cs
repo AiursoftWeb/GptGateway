@@ -1,48 +1,30 @@
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using Aiursoft.Canon;
 using Aiursoft.CSTools.Tools;
+using Aiursoft.GptGateway.Api.Data;
 using Aiursoft.GptGateway.Api.Models;
+using Aiursoft.GptGateway.Api.Models.Database;
+using Aiursoft.GptGateway.Api.Models.OpenAi;
 
 namespace Aiursoft.GptGateway.Api.Services;
 
-/// <summary>
-/// https://platform.openai.com/docs/models/gpt-3-5
-/// </summary>
-public enum GptModel
-{
-    /// <summary>
-    ///  gpt-3.5-turbo	Currently points to gpt-3.5-turbo-0613.	4,096 tokens	Up to Sep 2021
-    /// </summary>
-    Gpt35Turbo,
-
-    /// <summary>
-    /// gpt-3.5-turbo-16k	Currently points to gpt-3.5-turbo-16k-0613.	16,385 tokens	Up to Sep 2021
-    /// </summary>
-    Gpt35Turbo16K,
-    
-    /// <summary>
-    /// gpt-4	Currently points to gpt-4-0613. See continuous model upgrades.	8,192 tokens	Up to Sep 2021
-    /// </summary>
-    Gpt4,
-    
-    /// <summary>
-    /// gpt-4-32k	Currently points to gpt-4-32k-0613. See continuous model upgrades. This model was never rolled out widely in favor of GPT-4 Turbo.	32,768 tokens	Up to Sep 2021
-    /// </summary>
-    Gpt432K,
-}
-
 public class OpenAiService
 {
+    private readonly CanonQueue _canonQueue;
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
     private readonly string _token;
     private readonly string _instance;
 
     public OpenAiService(
+        CanonQueue canonQueue,
         HttpClient httpClient,
         ILogger<OpenAiService> logger,
         IConfiguration configuration)
     {
+        _canonQueue = canonQueue;
         _httpClient = httpClient;
         _httpClient.Timeout = TimeSpan.FromMinutes(5);
         _logger = logger;
@@ -80,12 +62,15 @@ public class OpenAiService
         };
 
         request.Headers.Add("Authorization", $"Bearer {_token}");
+        var requestStartTimestamp = DateTime.UtcNow;
         var response = await _httpClient.SendAsync(request);
         try
         {
             response.EnsureSuccessStatusCode();
             var responseJson = await response.Content.ReadAsStringAsync();
             var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
+            
+            _canonQueue.QueueWithDependency<GptGatewayDbContext>(db => RecordInDb(db, model, responseModel!, requestStartTimestamp));
             
             _logger.LogInformation("Asked OpenAi. Request last question: {0}. Response last answer: {1}.",
                 model.Messages.LastOrDefault()?.Content?.SafeSubstring(30),
@@ -101,11 +86,32 @@ public class OpenAiService
                 remoteError.SafeSubstring(30));
             throw new HttpRequestException(remoteError, raw);
         }
-        // ReSharper disable once RedundantEmptyFinallyBlock
-        finally
+    }
+    
+    private async Task RecordInDb(GptGatewayDbContext db, OpenAiModel model, CompletionData responseModel, DateTime requestStartTimestamp)
+    {
+        var openAiRequest = new OpenAiRequest
         {
-            // TODO: Insert to database.
-        }
+            LastQuestion = model.Messages.LastOrDefault()?.Content ?? "No question.",
+            Questions = JsonSerializer.Serialize(model.Messages, new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }),
+            Answer = responseModel.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.",
+            Duration = DateTime.UtcNow - requestStartTimestamp,
+            ConversationTime = DateTime.UtcNow,
+            PromptTokens = responseModel.Usage?.PromptTokens ?? 0,
+            CompletionTokens = responseModel.Usage?.CompletionTokens ?? 0,
+            TotalTokens = responseModel.Usage?.TotalTokens ?? 0,
+            PreTokenCount = responseModel.Usage?.PreTokenCount ?? 0,
+            PreTotal = responseModel.Usage?.PreTotal ?? 0,
+            AdjustTotal = responseModel.Usage?.AdjustTotal ?? 0,
+            FinalTotal = responseModel.Usage?.FinalTotal ?? 0,
+        };
+        await db.OpenAiRequests.AddAsync(openAiRequest);
+        await db.SaveChangesAsync();
+        
+        _logger.LogInformation("Recorded a new OpenAi request.");
     }
 
     public async Task<CompletionData> AskString(GptModel gptModelType, params string[] content)

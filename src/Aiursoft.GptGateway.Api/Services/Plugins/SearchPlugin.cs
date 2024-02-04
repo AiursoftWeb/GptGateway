@@ -1,4 +1,5 @@
 using Aiursoft.GptGateway.Api.Models;
+using Aiursoft.GptGateway.Api.Models.OpenAi;
 using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.Plugins;

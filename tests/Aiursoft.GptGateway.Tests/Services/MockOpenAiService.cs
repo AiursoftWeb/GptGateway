@@ -1,4 +1,6 @@
+using Aiursoft.Canon;
 using Aiursoft.GptGateway.Api.Models;
+using Aiursoft.GptGateway.Api.Models.OpenAi;
 using Aiursoft.GptGateway.Api.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,8 +9,9 @@ namespace Aiursoft.GptGateway.Tests.Services;
 
 public class MockOpenAiService : OpenAiService
 {
-    public MockOpenAiService(HttpClient httpClient, ILogger<OpenAiService> logger, IConfiguration configuration) 
-        : base(httpClient, logger, configuration)
+    public MockOpenAiService
+        (CanonQueue queue, HttpClient httpClient, ILogger<OpenAiService> logger, IConfiguration configuration) 
+        : base(queue, httpClient, logger, configuration)
     {
     }
 
