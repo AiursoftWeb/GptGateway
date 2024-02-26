@@ -68,7 +68,7 @@ public class SearchPlugin : IPlugin
             return 0;
         }
 
-        var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt432K);
+        var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
 
         return _questionReformatService.ConvertResponseToScore(shouldSearch);
     }
@@ -82,7 +82,7 @@ public class SearchPlugin : IPlugin
             includeSystemMessage: true,
             out var rawQuestion,
             mergeAsOne: true);
-        var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt4);
+        var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
         var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!
             .Trim('\"')
             .Trim();
