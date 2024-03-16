@@ -8,25 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace Aiursoft.GptGateway.Api.Controllers;
 
 [LimitPerMin(5)]
-public class HomeController : ControllerBase
+public class HomeController(
+    IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
+    IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
+    OpenAiService openAiService)
+    : ControllerBase
 {
-    private readonly IEnumerable<IPreRequestMiddleware> _preRequestMiddlewares;
-    private readonly IEnumerable<IPostRequestMiddleware> _postRequestMiddlewares;
-    private readonly OpenAiService _openAiService;
-
-    public HomeController(
-        IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
-        IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
-        OpenAiService openAiService)
-    {
-        _preRequestMiddlewares = preRequestMiddlewares;
-        _postRequestMiddlewares = postRequestMiddlewares;
-        _openAiService = openAiService;
-    }
-    
     public async Task<IActionResult> Index()
     {
-        var answer = await _openAiService.AskOne("What is the meaning of life?", GptModel.Gpt35Turbo);
+        var answer = await openAiService.AskOne("What is the meaning of life?", GptModel.Gpt35Turbo);
         return Ok(answer);
     }
     
@@ -41,12 +31,12 @@ public class HomeController : ControllerBase
             ModifiedInput = rawInput.Clone(),
             Output = null
         };
-        foreach (var middleware in _preRequestMiddlewares)
+        foreach (var middleware in preRequestMiddlewares)
         {
             await middleware.PreRequest(context);
         }
-        context.Output = await _openAiService.AskModel(context.ModifiedInput, GptModel.Gpt35Turbo16K);
-        foreach (var middleware in _postRequestMiddlewares)
+        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.Gpt35Turbo16K);
+        foreach (var middleware in postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
         }

@@ -3,15 +3,8 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
-public class InjectTimeMiddleware : IPreRequestMiddleware
+public class InjectTimeMiddleware(ILogger<InjectTimeMiddleware> logger) : IPreRequestMiddleware
 {
-    private readonly ILogger<InjectTimeMiddleware> _logger;
-
-    public InjectTimeMiddleware(ILogger<InjectTimeMiddleware> logger)
-    {
-        _logger = logger;
-    }
-    
     public Task PreRequest(ConversationContext conv)
     {
         if (!(conv.ModifiedInput.Messages.FirstOrDefault()?.Content?.StartsWith("此时此刻的时间是") ?? false))
@@ -24,7 +17,7 @@ public class InjectTimeMiddleware : IPreRequestMiddleware
             });
         }
         
-        _logger.LogInformation("Time injected. Last question: {0}", conv.ModifiedInput.Messages[^1].Content);
+        logger.LogInformation("Time injected. Last question: {0}", conv.ModifiedInput.Messages[^1].Content);
         return Task.CompletedTask;
     }
 }

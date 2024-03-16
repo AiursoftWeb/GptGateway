@@ -4,15 +4,9 @@ using Aiursoft.CSTools.Services;
 
 namespace Aiursoft.GptGateway.Api.Services;
 
-public class SearchService
+public class SearchService(IConfiguration configuration)
 {
-    private readonly string _searchApiKey;
-
-    public SearchService(
-        IConfiguration configuration)
-    {
-        _searchApiKey = configuration["BingSearchAPIKey"]!;
-    }
+    private readonly string _searchApiKey = configuration["BingSearchAPIKey"]!;
 
     public virtual async Task<SearchResponse> DoSearch(string question, int count = 10)
     {

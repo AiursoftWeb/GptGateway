@@ -4,7 +4,12 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.Plugins;
 
-public class SearchPlugin : IPlugin
+public class SearchPlugin(
+    QuestionReformatService questionReformatService,
+    ILogger<SearchPlugin> logger,
+    SearchService searchService,
+    OpenAiService openAiService)
+    : IPlugin
 {
     public string PluginName => "搜索插件";
 
@@ -36,26 +41,9 @@ public class SearchPlugin : IPlugin
     private const string AnswerPrompt =
         "你是一个旨在解决人类问题的人工智能。现在我正在调查一个问题。在调查之前，我使用搜索引擎，搜索了 `{0}`。下面是搜索的结果。\n\n\n{1}\n\n 可是，我无法阅读上述结果。现在，我需要你结合上述搜索结果，合理的过滤和筛选，推理、总结并回答真正的问题：\n\n```\n{2}\n```\n\n另外，在给出答案时，如果可以，请在答案的最终附带使用 markdown 的链接格式 (也就是：[标题](URL) 的格式) 的引用部分来表达你引用的是哪条来源。";
 
-    private readonly QuestionReformatService _questionReformatService;
-    private readonly ILogger<SearchPlugin> _logger;
-    private readonly SearchService _searchService;
-    private readonly OpenAiService _openAiService;
-
-    public SearchPlugin(
-        QuestionReformatService questionReformatService,
-        ILogger<SearchPlugin> logger,
-        SearchService searchService,
-        OpenAiService openAiService)
-    {
-        _questionReformatService = questionReformatService;
-        _logger = logger;
-        _searchService = searchService;
-        _openAiService = openAiService;
-    }
-
     public async Task<int> GetUsagePoint(OpenAiModel input)
     {
-        var requestModel = _questionReformatService.Map(
+        var requestModel = questionReformatService.Map(
             input,
             ShouldUse,
             4,
@@ -68,32 +56,32 @@ public class SearchPlugin : IPlugin
             return 0;
         }
 
-        var shouldSearch = await _openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
+        var shouldSearch = await openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
 
-        return _questionReformatService.ConvertResponseToScore(shouldSearch);
+        return questionReformatService.ConvertResponseToScore(shouldSearch);
     }
 
     public async Task<string> GetPluginAppendedMessage(ConversationContext context)
     {
-        var requestModel = _questionReformatService.Map(
+        var requestModel = questionReformatService.Map(
             model: context.ModifiedInput,
             template: GetSearchEntityPrompt,
             take: 5,
             includeSystemMessage: true,
             out var rawQuestion,
             mergeAsOne: true);
-        var textToSearchObject = await _openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
+        var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.Gpt35Turbo16K);
         var textToSearch = textToSearchObject.Choices.FirstOrDefault()!.Message!.Content!
             .Trim('\"')
             .Trim();
 
         textToSearch = BadWords.Aggregate(textToSearch, (current, badWord) => current.Replace(badWord, " "));
 
-        _logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
+        logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
 
         context.PluginMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
 
-        var searchResult = await _searchService.DoSearch(textToSearch);
+        var searchResult = await searchService.DoSearch(textToSearch);
         var resultList = searchResult.WebPages?.Value
             .Select(t => $"""
                           ## {t.Name}

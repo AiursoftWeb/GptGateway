@@ -8,7 +8,7 @@ public abstract class Program
 {
     public static async Task Main(string[] args)
     {
-        var app = Extends.App<Startup>(args);
+        var app = await Extends.AppAsync<Startup>(args);
         await app.UpdateDbAsync<GptGatewayDbContext>(UpdateMode.MigrateThenUse);
         await app.RunAsync();
     }

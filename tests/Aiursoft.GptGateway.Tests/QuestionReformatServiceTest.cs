@@ -14,9 +14,9 @@ public class QuestionReformatServiceTest
     private QuestionReformatService? _service;
 
     [TestInitialize]
-    public void CreateServer()
+    public async Task CreateServer()
     {
-        var server = App<TestStartup>(Array.Empty<string>(), port: _port);
+        var server = await AppAsync<TestStartup>(Array.Empty<string>(), port: _port);
         _service = server.Services.GetRequiredService<QuestionReformatService>();
     }
 

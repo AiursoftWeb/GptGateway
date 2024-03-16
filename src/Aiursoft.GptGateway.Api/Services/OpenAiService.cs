@@ -56,6 +56,7 @@ public class OpenAiService
 
 
         var json = JsonSerializer.Serialize(model);
+        _logger.LogInformation("Asking OpenAi with endpoint: {0}.", $"{_instance}/v1/chat/completions");
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_instance}/v1/chat/completions")
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")

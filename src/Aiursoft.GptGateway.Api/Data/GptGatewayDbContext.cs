@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aiursoft.GptGateway.Api.Data;
 
-public class GptGatewayDbContext : DbContext
+public class GptGatewayDbContext(DbContextOptions<GptGatewayDbContext> options) : DbContext(options)
 {
-    public GptGatewayDbContext(DbContextOptions<GptGatewayDbContext> options) : base(options)
-    {
-    }
-    
     public DbSet<UserConversation> UserConversations => Set<UserConversation>();
     
     public DbSet<OpenAiRequest> OpenAiRequests => Set<OpenAiRequest>();

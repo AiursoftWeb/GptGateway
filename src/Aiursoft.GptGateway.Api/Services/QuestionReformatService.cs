@@ -2,18 +2,11 @@ using Aiursoft.GptGateway.Api.Models;
 
 namespace Aiursoft.GptGateway.Api.Services;
 
-public class QuestionReformatService
+public class QuestionReformatService(ILogger<QuestionReformatService> logger)
 {
-    private readonly ILogger<QuestionReformatService> _logger;
-
-    public QuestionReformatService(ILogger<QuestionReformatService> logger)
-    {
-        _logger = logger;
-    }
-    
     public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion, bool mergeAsOne = false)
     {
-        _logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
+        logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
         var messagesQuery = model.Messages
             //.Where(m => !m.IsInjected);
             .AsEnumerable();
@@ -60,7 +53,7 @@ public class QuestionReformatService
     public int ConvertResponseToScore(CompletionData response)
     {
         var responseLastOutput = response.Choices.FirstOrDefault()!.Message!.Content!;
-        _logger.LogInformation("Plugin output: {0}", responseLastOutput);
+        logger.LogInformation("Plugin output: {0}", responseLastOutput);
         
         var truePosition = responseLastOutput.IndexOf("true", StringComparison.Ordinal);
         var falsePosition = responseLastOutput.IndexOf("false", StringComparison.Ordinal);

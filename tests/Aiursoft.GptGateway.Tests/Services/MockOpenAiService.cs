@@ -7,14 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Aiursoft.GptGateway.Tests.Services;
 
-public class MockOpenAiService : OpenAiService
+public class MockOpenAiService(
+    CanonQueue queue,
+    HttpClient httpClient,
+    ILogger<OpenAiService> logger,
+    IConfiguration configuration)
+    : OpenAiService(queue, httpClient, logger, configuration)
 {
-    public MockOpenAiService
-        (CanonQueue queue, HttpClient httpClient, ILogger<OpenAiService> logger, IConfiguration configuration) 
-        : base(queue, httpClient, logger, configuration)
-    {
-    }
-
     public override Task<CompletionData> AskModel(OpenAiModel model, GptModel gptModelType)
     {
         return Task.FromResult(new CompletionData

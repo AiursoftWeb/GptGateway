@@ -8,19 +8,11 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.PostRequest;
 
-public class RecordInDbMiddleware : IPostRequestMiddleware
+public class RecordInDbMiddleware(
+    ILogger<RecordInDbMiddleware> logger,
+    CanonQueue canonQueue)
+    : IPostRequestMiddleware
 {
-    private readonly ILogger<RecordInDbMiddleware> _logger;
-    private readonly CanonQueue _canonQueue;
-    
-    public RecordInDbMiddleware(
-        ILogger<RecordInDbMiddleware> logger,
-        CanonQueue canonQueue)
-    {
-        _logger = logger;
-        _canonQueue = canonQueue;
-    }
-    
     public Task PostRequest(ConversationContext conv)
     {
         var userConversation = new UserConversation
@@ -45,12 +37,12 @@ public class RecordInDbMiddleware : IPostRequestMiddleware
             FinalTotal = conv.Output!.Usage?.FinalTotal ?? 0,
         };
         
-        _canonQueue.QueueWithDependency<GptGatewayDbContext>(async db =>
+        canonQueue.QueueWithDependency<GptGatewayDbContext>(async db =>
         {
             await db.UserConversations.AddAsync(userConversation);
             await db.SaveChangesAsync();
             
-            _logger.LogInformation("Recorded a conversation from {Ip}.", userConversation.RequestIpAddress);
+            logger.LogInformation("Recorded a conversation from {Ip}.", userConversation.RequestIpAddress);
         });
         return Task.CompletedTask;
     }

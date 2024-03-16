@@ -4,25 +4,16 @@ using Aiursoft.GptGateway.Api.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Api.Services.PreRequest;
 
-public class InjectPluginsMiddleware : IPreRequestMiddleware
+public class InjectPluginsMiddleware(
+    CanonPool canonPool,
+    IEnumerable<IPlugin> plugins) : IPreRequestMiddleware
 {
-    private readonly CanonPool _canonPool;
-    private readonly IEnumerable<IPlugin> _plugins;
-
-    public InjectPluginsMiddleware(
-        CanonPool canonPool,
-        IEnumerable<IPlugin> plugins)
-    {
-        _canonPool = canonPool;
-        _plugins = plugins;
-    }
-
     public async Task PreRequest(ConversationContext conv)
     {
         var pluginRanks = new List<(IPlugin plugin, int rank)>();
-        foreach (var plugin in _plugins)
+        foreach (var plugin in plugins)
         {
-            _canonPool.RegisterNewTaskToPool(async () =>
+            canonPool.RegisterNewTaskToPool(async () =>
             {
                 var usagePoint = await plugin.GetUsagePoint(conv.ModifiedInput);
                 if (usagePoint > 0)
@@ -32,7 +23,7 @@ public class InjectPluginsMiddleware : IPreRequestMiddleware
             });
         }
 
-        await _canonPool.RunAllTasksInPoolAsync(16);
+        await canonPool.RunAllTasksInPoolAsync(16);
         var bestPlugin = pluginRanks.OrderByDescending(t => t.rank).FirstOrDefault();
         if (bestPlugin.plugin == null)
         {
