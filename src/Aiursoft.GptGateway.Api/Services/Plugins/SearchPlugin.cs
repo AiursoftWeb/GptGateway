@@ -29,7 +29,8 @@ public class SearchPlugin(
         "如何", "什么",
         "哪里", "哪个", "哪种", "哪样", "哪么", "哪些",
         "是什么", "是哪里", "是哪个", "是哪种", "是哪样", "是哪么", "是哪些",
-        "怎么", "怎么样", "怎么着", "怎么办", "怎么会", "怎么说", "怎么做", "怎么了"
+        "怎么", "怎么样", "怎么着", "怎么办", "怎么会", "怎么说", "怎么做", "怎么了"，
+        "建议", "搜索", "词条", "\""
     };
 
     private const string ShouldUse =
@@ -75,7 +76,7 @@ public class SearchPlugin(
             .Trim('\"')
             .Trim();
 
-        textToSearch = BadWords.Aggregate(textToSearch, (current, badWord) => current.Replace(badWord, " "));
+        textToSearch = BadWords.Aggregate(textToSearch, (current, badWord) => current.Replace(badWord, " ")).Trim();
 
         logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
 
