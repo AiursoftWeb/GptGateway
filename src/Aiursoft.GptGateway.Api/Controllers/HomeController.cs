@@ -2,12 +2,10 @@ using Aiursoft.GptGateway.Api.Models;
 using Aiursoft.GptGateway.Api.Models.OpenAi;
 using Aiursoft.GptGateway.Api.Services;
 using Aiursoft.GptGateway.Api.Services.Abstractions;
-using Aiursoft.WebTools.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aiursoft.GptGateway.Api.Controllers;
 
-[LimitPerMin(5)]
 public class HomeController(
     IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
     IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
