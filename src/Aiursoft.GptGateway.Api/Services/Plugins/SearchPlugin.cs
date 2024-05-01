@@ -84,7 +84,7 @@ public class SearchPlugin(
 
         context.PluginMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
 
-        var searchResult = await retryEngine.RunWithRetry(attempt => searchService.DoSearch(textToSearch));
+        var searchResult = await retryEngine.RunWithRetry(_ => searchService.DoSearch(textToSearch));
         var resultList = searchResult.WebPages?.Value
             .Select(t => $"""
                           ## {t.Name}
