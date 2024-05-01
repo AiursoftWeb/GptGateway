@@ -1,3 +1,4 @@
+using Aiursoft.Canon;
 using Aiursoft.GptGateway.Api.Models;
 using Aiursoft.GptGateway.Api.Models.OpenAi;
 using Aiursoft.GptGateway.Api.Services.Abstractions;
@@ -6,6 +7,7 @@ namespace Aiursoft.GptGateway.Api.Services.Plugins;
 
 public class SearchPlugin(
     QuestionReformatService questionReformatService,
+    RetryEngine retryEngine,
     ILogger<SearchPlugin> logger,
     SearchService searchService,
     OpenAiService openAiService)
@@ -82,7 +84,7 @@ public class SearchPlugin(
 
         context.PluginMessages.Add($@"> 使用搜索引擎搜索了：""{textToSearch}"".");
 
-        var searchResult = await searchService.DoSearch(textToSearch);
+        var searchResult = await retryEngine.RunWithRetry(attempt => searchService.DoSearch(textToSearch));
         var resultList = searchResult.WebPages?.Value
             .Select(t => $"""
                           ## {t.Name}

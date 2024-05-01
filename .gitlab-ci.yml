@@ -62,15 +62,6 @@ test:
         coverage_format: cobertura
         path: ./Cobertura.xml
 
-publish:
-  stage: publish
-  needs: 
-    - lint
-    - test
-  script:
-    - dotnet build   -maxcpucount:1 --configuration Release
-    - dotnet publish -maxcpucount:1 --configuration Release --runtime linux-x64 --no-self-contained *.sln
-
 pack:
   stage: publish
   needs: 
@@ -117,10 +108,9 @@ upload_to_local_nuget:
 deploy_docker:
   stage: deploy
   environment: production
-  needs:
-    - publish
-  dependencies:
-    - publish
+  needs: 
+    - lint
+    - test
   script:
     - docker build . -t hub.aiursoft.cn/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:latest
     - docker push hub.aiursoft.cn/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:latest
