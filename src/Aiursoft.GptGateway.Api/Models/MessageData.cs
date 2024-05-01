@@ -8,6 +8,7 @@ public class MessageData
     /// The role of the message, such as "user" or "bot".
     /// </summary>
     [JsonPropertyName("role")]
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public string? Role { get; set; }
 
     /// <summary>
