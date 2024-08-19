@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Aiursoft.Canon" Version="8.0.4" />
-    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="8.0.15" />
+    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="8.0.16" />
     <PackageReference Include="Aiursoft.WebTools" Version="8.0.22" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Search.WebSearch" Version="2.0.0" />
   </ItemGroup>
