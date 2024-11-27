@@ -6,7 +6,7 @@
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/commits/master?ref_type=heads)
 [![Docker](https://img.shields.io/badge/docker-latest-blue?logo=docker)](https://hub.aiursoft.cn/#!/taglist/aiursoft/GptGateway)
 
-GptGateway is a OpenAI ChatGPT API gateway.
+GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like search engines.
 
 ## Run in Ubuntu
 
