@@ -18,7 +18,7 @@ On your Ubuntu server, run the following command:
 curl -sL https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/raw/master/install.sh | sudo bash
 ```
 
-Of course it is suggested that append a custom port number to the command:
+Of course, it is suggested that append a custom port number to the command:
 
 ```bash
 curl -sL https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/raw/master/install.sh | sudo bash -s 8080
