@@ -1,4 +1,3 @@
-using System.Reflection;
 using Aiursoft.Canon;
 using Aiursoft.DbTools.Sqlite;
 using Aiursoft.GptGateway.Api.Data;
@@ -35,10 +34,10 @@ public class Startup : IWebStartup
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
         services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();
-        
+
         services
             .AddControllers()
-            .AddApplicationPart(Assembly.GetExecutingAssembly());
+            .AddApplicationPart(typeof(Startup).Assembly);
     }
 
     public void Configure(WebApplication app)
