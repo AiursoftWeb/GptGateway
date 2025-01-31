@@ -7,9 +7,9 @@ public class ShowPluginUsageMiddleware : IPostRequestMiddleware
 {
     public Task PostRequest(ConversationContext conv)
     {
-        var messages = string.Join("\n", conv.PluginMessages); 
-            
-        conv.Output!.Choices.FirstOrDefault()!.Message!.Content = $"{messages}\n\n{conv.Output!.Choices.FirstOrDefault()!.Message!.Content}";
+        var messages = string.Join("\n", conv.PluginMessages);
+
+        conv.Output!.SetContent($"{messages}\n\n{conv.Output!.GetContent()}");
         return Task.CompletedTask;
     }
 }

@@ -5,7 +5,7 @@ namespace Aiursoft.GptGateway.Api.Models;
 public class MessageData
 {
     /// <summary>
-    /// The role of the message, such as "user" or "bot".
+    /// The role of the message, such as "user" or "assistant".
     /// </summary>
     [JsonPropertyName("role")]
     // ReSharper disable once UnusedAutoPropertyAccessor.Global

@@ -76,7 +76,7 @@ public class OpenAiService
             
             _logger.LogInformation("Asked OpenAi. Request last question: {0}. Response last answer: {1}.",
                 model.Messages.LastOrDefault()?.Content?.SafeSubstring(30),
-                responseModel?.Choices.FirstOrDefault()?.Message?.Content?.SafeSubstring(30));
+                responseModel?.GetContent().SafeSubstring(30));
             return responseModel!;
         }
         catch (HttpRequestException raw)
@@ -99,7 +99,7 @@ public class OpenAiService
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             }),
-            Answer = responseModel.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.",
+            Answer = responseModel.GetContent(),
             Duration = DateTime.UtcNow - requestStartTimestamp,
             ConversationTime = DateTime.UtcNow,
             PromptTokens = responseModel.Usage?.PromptTokens ?? 0,
@@ -132,6 +132,6 @@ public class OpenAiService
     public virtual async Task<string> AskOne(string question, GptModel gptModelType)
     {
         var result = await AskString(gptModelType, question);
-        return result.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.";
+        return result.GetContent();
     }
 }

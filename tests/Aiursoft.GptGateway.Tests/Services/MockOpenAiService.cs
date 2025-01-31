@@ -22,8 +22,8 @@ public class MockOpenAiService(
             Object = "chat.completion",
             Created = 1706527910,
             Model = "gpt-3.5-turbo-0301",
-            Choices = new List<ChoicesItemData>
-            {
+            Choices =
+            [
                 new()
                 {
                     Index = 0,
@@ -34,7 +34,7 @@ public class MockOpenAiService(
                     },
                     FinishReason = "stop"
                 }
-            },
+            ],
             Usage = new UsageData
             {
                 PromptTokens = 41,

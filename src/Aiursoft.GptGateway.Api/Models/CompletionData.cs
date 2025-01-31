@@ -40,5 +40,40 @@ public class CompletionData
     [JsonPropertyName("choices")]
     // ReSharper disable once CollectionNeverUpdated.Global
     // ReSharper disable once CollectionNeverQueried.Global
-    public List<ChoicesItemData> Choices { get; set; } = new();
+    public List<ChoicesItemData>? Choices { get; set; } = new();
+    
+    [JsonPropertyName("message")]
+    public MessageData? Message { get; set; }
+    
+    public string GetContent()
+    {
+        if (Choices != null && Choices.Count != 0)
+        {
+            return Choices.First().Message?.Content ?? string.Empty;
+        }
+        return Message?.Content ?? string.Empty;
+    }
+    
+    public void SetContent(string content)
+    {
+        if (Choices == null || Choices.Count == 0)
+        {
+            Choices =
+            [
+                new ChoicesItemData
+                {
+                    Message = new MessageData
+                    {
+                        Content = content,
+                        Role = "assistant"
+                    }
+                }
+            ];
+        }
+
+        if (Message != null)
+        {
+            Message.Content = content;
+        }
+    }
 }

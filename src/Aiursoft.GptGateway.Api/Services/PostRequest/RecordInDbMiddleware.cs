@@ -24,7 +24,7 @@ public class RecordInDbMiddleware(
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             }),
             LastQuestion = conv.RawInput.Messages.LastOrDefault()?.Content ?? "No question.",
-            Answer = conv.Output!.Choices.FirstOrDefault()?.Message?.Content ?? "No answer.",
+            Answer = conv.Output!.GetContent(),
             ToolsUsed = string.Join(", ", conv.ToolsUsed.Select(t => t.PluginName)),
             Duration = DateTime.UtcNow - conv.RequestTime,
             ConversationTime = DateTime.UtcNow,

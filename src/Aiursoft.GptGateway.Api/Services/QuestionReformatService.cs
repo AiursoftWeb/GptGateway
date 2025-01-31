@@ -52,7 +52,7 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
     
     public int ConvertResponseToScore(CompletionData response)
     {
-        var responseLastOutput = response.Choices.FirstOrDefault()!.Message!.Content!;
+        var responseLastOutput = response.GetContent();
         logger.LogInformation("Plugin output: {0}", responseLastOutput);
         
         var truePosition = responseLastOutput.IndexOf("true", StringComparison.Ordinal);
