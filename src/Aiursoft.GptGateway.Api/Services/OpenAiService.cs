@@ -16,7 +16,7 @@ public class OpenAiService
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
     private readonly string _token;
-    private readonly string _instance;
+    private readonly string _completionApiUrl;
 
     public OpenAiService(
         CanonQueue canonQueue,
@@ -29,7 +29,7 @@ public class OpenAiService
         _httpClient.Timeout = TimeSpan.FromMinutes(5);
         _logger = logger;
         _token = configuration["OpenAI:Token"]!;
-        _instance = configuration["OpenAI:Instance"]!;
+        _completionApiUrl = configuration["OpenAI:CompletionApiUrl"]!;
     }
     
     public string ToModelString(GptModel gptModel)
@@ -56,8 +56,8 @@ public class OpenAiService
 
 
         var json = JsonSerializer.Serialize(model);
-        _logger.LogInformation("Asking OpenAi with endpoint: {0}.", $"{_instance}/v1/chat/completions");
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{_instance}/v1/chat/completions")
+        _logger.LogInformation("Asking OpenAi with endpoint: {0}.", _completionApiUrl);
+        var request = new HttpRequestMessage(HttpMethod.Post, _completionApiUrl)
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
