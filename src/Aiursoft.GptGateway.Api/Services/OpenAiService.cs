@@ -15,7 +15,7 @@ public class OpenAiService
     private readonly CanonQueue _canonQueue;
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
-    private readonly string _token;
+    private readonly string? _token;
     private readonly string _completionApiUrl;
 
     public OpenAiService(
@@ -48,13 +48,7 @@ public class OpenAiService
     public virtual async Task<CompletionData> AskModel(OpenAiModel model, GptModel gptModelType)
     {
         model.Model = ToModelString(gptModelType);
-        if (string.IsNullOrWhiteSpace(_token))
-        {
-            throw new ArgumentNullException(nameof(_token));
-        }
-
         _logger.LogInformation("Asking OpenAi...");
-
 
         var json = JsonSerializer.Serialize(model);
         _logger.LogInformation("Asking OpenAi with endpoint: {0}.", _completionApiUrl);
@@ -63,7 +57,11 @@ public class OpenAiService
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
-        request.Headers.Add("Authorization", $"Bearer {_token}");
+        if (_token != null)
+        {
+            request.Headers.Add("Authorization", $"Bearer {_token}");
+        }
+        
         var requestStartTimestamp = DateTime.UtcNow;
         var response = await _httpClient.SendAsync(request);
         try
