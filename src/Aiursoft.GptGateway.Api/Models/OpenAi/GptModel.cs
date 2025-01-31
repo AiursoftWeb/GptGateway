@@ -24,4 +24,9 @@ public enum GptModel
     /// gpt-4-32k	Currently points to gpt-4-32k-0613. See continuous model upgrades. This model was never rolled out widely in favor of GPT-4 Turbo.	32,768 tokens	Up to Sep 2021
     /// </summary>
     Gpt432K,
+    
+    /// <summary>
+    /// deepseek-r1	model.
+    /// </summary>
+    DeepseekR132B
 }

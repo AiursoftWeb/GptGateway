@@ -14,7 +14,7 @@ public class HomeController(
 {
     public async Task<IActionResult> Index()
     {
-        var answer = await openAiService.AskOne("What is the meaning of life?", GptModel.Gpt35Turbo);
+        var answer = await openAiService.AskOne("What is the meaning of life?", GptModel.DeepseekR132B);
         return Ok(answer);
     }
     
@@ -33,7 +33,7 @@ public class HomeController(
         {
             await middleware.PreRequest(context);
         }
-        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.Gpt35Turbo16K);
+        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.DeepseekR132B);
         foreach (var middleware in postRequestMiddlewares)
         {
             await middleware.PostRequest(context);

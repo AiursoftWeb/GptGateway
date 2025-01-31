@@ -40,6 +40,7 @@ public class OpenAiService
             GptModel.Gpt35Turbo16K => "gpt-3.5-turbo-16k",
             GptModel.Gpt4 => "gpt-4",
             GptModel.Gpt432K => "gpt-4-32k",
+            GptModel.DeepseekR132B => "deepseek-r1:32b",
             _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }
