@@ -8,7 +8,7 @@ public class TrimInputMiddleware : IPreRequestMiddleware
 {
     public Task PreRequest(ConversationContext conv)
     {
-        conv.ModifiedInput.Messages = conv.ModifiedInput.Messages.TakeLast(6).ToList();
+        conv.ModifiedInput.Messages = conv.ModifiedInput.Messages.TakeLast(20).ToList();
         conv.ModifiedInput.Stream = false;
         return Task.CompletedTask;
     }
