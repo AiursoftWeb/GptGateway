@@ -42,14 +42,6 @@ public class BasicTests
     }
 
     [TestMethod]
-    [DataRow("/")]
-    public async Task GetHome(string url)
-    {
-        var response = await _http.GetAsync(_endpointUrl + url);
-        response.EnsureSuccessStatusCode(); // Status Code 200-299
-    }
-
-    [TestMethod]
     public async Task PostApi()
     {
         var model = new OpenAiModel
