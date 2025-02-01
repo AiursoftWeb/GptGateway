@@ -17,6 +17,7 @@ RUN npm run build --prefix "${FRONT_END_PATH}"
 # Prepare Building Environment
 FROM hub.aiursoft.cn/aiursoft/internalimages/dotnet AS build-env
 ARG CSPROJ_PATH
+ARG FRONT_END_PATH
 ARG PROJ_NAME
 WORKDIR /src
 COPY --from=npm-env /src .
