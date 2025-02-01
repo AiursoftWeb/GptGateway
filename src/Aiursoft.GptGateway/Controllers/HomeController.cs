@@ -12,12 +12,6 @@ public class HomeController(
     OpenAiService openAiService)
     : ControllerBase
 {
-    public async Task<IActionResult> Index()
-    {
-        var answer = await openAiService.AskOne("What is the meaning of life?", GptModel.DeepseekR132B);
-        return Ok(answer);
-    }
-    
     [HttpPost]
     [Route("/v1/chat/completions")]
     public async Task<IActionResult> Ask([FromBody] OpenAiModel rawInput)
