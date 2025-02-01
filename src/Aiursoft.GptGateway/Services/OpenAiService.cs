@@ -74,7 +74,7 @@ public class OpenAiService
             
             _logger.LogInformation("Asked OpenAi. Request last question: {0}. Response last answer: {1}.",
                 model.Messages.LastOrDefault()?.Content?.SafeSubstring(30),
-                responseModel?.GetContent().SafeSubstring(30));
+                responseModel?.GetActualAnswer().SafeSubstring(30));
             return responseModel!;
         }
         catch (HttpRequestException raw)

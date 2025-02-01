@@ -74,7 +74,7 @@ public class SearchPlugin(
             out var rawQuestion,
             mergeAsOne: true);
         var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.DeepseekR132B);
-        var textToSearch = textToSearchObject.GetContent()
+        var textToSearch = textToSearchObject.GetActualAnswer()
             .Trim('\"')
             .Trim();
 

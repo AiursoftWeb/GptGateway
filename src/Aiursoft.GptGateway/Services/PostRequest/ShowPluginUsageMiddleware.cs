@@ -9,7 +9,8 @@ public class ShowPluginUsageMiddleware : IPostRequestMiddleware
     {
         var messages = string.Join("\n", conv.PluginMessages);
 
-        conv.Output!.SetContent($"{messages}\n\n{conv.Output!.GetContent()}");
+        // The think part will be removed.
+        conv.Output!.SetContent($"{messages}\n\n{conv.Output!.GetActualAnswer()}");
         return Task.CompletedTask;
     }
 }

@@ -44,6 +44,47 @@ public class CompletionData
     
     [JsonPropertyName("message")]
     public MessageData? Message { get; set; }
+
+    public string GetThinkPart()
+    {
+        // 先获取整体内容
+        var content = GetContent();
+        // 查找 <think> 和 </think> 标签的位置
+        var startTag = "<think>";
+        var endTag = "</think>";
+        var startIdx = content.IndexOf(startTag, StringComparison.OrdinalIgnoreCase);
+        var endIdx = content.IndexOf(endTag, StringComparison.OrdinalIgnoreCase);
+    
+        // 如果存在且格式正确，则提取出 think 部分
+        if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
+        {
+            var thinkStart = startIdx + startTag.Length;
+            var thinkPart = content.Substring(thinkStart, endIdx - thinkStart);
+            return thinkPart.Trim();
+        }
+    
+        // 未找到 think 部分，则返回空
+        return string.Empty;
+    }
+
+    public string GetActualAnswer()
+    {
+        var content = GetContent();
+        var startTag = "<think>";
+        var endTag = "</think>";
+        var startIdx = content.IndexOf(startTag, StringComparison.OrdinalIgnoreCase);
+        var endIdx = content.IndexOf(endTag, StringComparison.OrdinalIgnoreCase);
+    
+        // 如果存在 think 部分，则实际答案为 think 标签之后的部分
+        if (startIdx != -1 && endIdx != -1 && endIdx > startIdx)
+        {
+            var answerStart = endIdx + endTag.Length;
+            return content.Substring(answerStart).Trim();
+        }
+    
+        // 如果没有 think 标签，则原样返回整个内容
+        return content;
+    }
     
     public string GetContent()
     {
