@@ -56,6 +56,7 @@ public class CompletionData
     
     public void SetContent(string content)
     {
+        // Fill the Choices because some front-end code may rely on it.
         if (Choices == null || Choices.Count == 0)
         {
             Choices =
@@ -71,9 +72,11 @@ public class CompletionData
             ];
         }
 
-        if (Message != null)
+        // Fill the Message because some front-end code may rely on it.
+        Message ??= new MessageData
         {
-            Message.Content = content;
-        }
+            Role = "assistant",
+        };
+        Message.Content = content;
     }
 }
