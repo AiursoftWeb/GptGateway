@@ -185,7 +185,7 @@ body {
 }
 
 .message {
-  padding: 0 1rem;
+  padding: 1rem;
   border-radius: 5px;
   text-align: left;
   max-width: 80%;
