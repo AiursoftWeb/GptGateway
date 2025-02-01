@@ -39,9 +39,9 @@
   </div>
   <el-space class="references">
     <el-link href="https://www.aiursoft.cn/" target="_blank">Home</el-link>
-    <el-link href="https://gitlab.aiursoft.cn/aiursoft/glm-ui" target="_blank">Source </el-link>
+    <el-link href="https://gitlab.aiursoft.cn/aiursoft/gptgateway" target="_blank">Source </el-link>
     <el-tooltip :content="version" placement="top"><el-link href="">Commit</el-link></el-tooltip>
-    <el-link href="https://huggingface.co/THUDM/chatglm-6b" target="_blank">About </el-link>
+    <el-link href="https://github.com/deepseek-ai/DeepSeek-R1" target="_blank">About </el-link>
   </el-space>
 </template>
 
@@ -85,7 +85,7 @@ const getResult = async () => {
   try {
     const question = formdata.question;
     formdata.question = "";
-    const resp = await fetch("https://glm.aiursoft.cn", {
+    const resp = await fetch("/v1/chat/completions", {
       method: "post",
       body: JSON.stringify({
         prompt: question,
