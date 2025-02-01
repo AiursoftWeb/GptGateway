@@ -12,6 +12,18 @@ GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like sear
 
 The following script will install\update this app on your Ubuntu server. Supports Ubuntu 22.04.
 
+Before starting, it's suggested to install ollama first for local testing.
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+This project uses `deepseek-r1:32b` as the default model. Pull it first.
+
+```bash
+ollama pull deepseek-r1:32b
+```
+
 On your Ubuntu server, run the following command:
 
 ```bash
