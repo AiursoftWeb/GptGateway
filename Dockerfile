@@ -5,7 +5,7 @@ ARG FRONT_END_PATH="./src/Aiursoft.GptGateway.Frontend/"
 # ============================
 # Prepare NPM Environment
 FROM hub.aiursoft.cn/node:21-alpine AS npm-env
-ARG CSPROJ_PATH
+ARG FRONT_END_PATH
 WORKDIR /src
 COPY . .
 
