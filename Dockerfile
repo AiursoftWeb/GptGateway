@@ -1,5 +1,5 @@
-ARG CSPROJ_PATH="./src/Aiursoft.GptGateway.Api/"
-ARG PROJ_NAME="Aiursoft.GptGateway.Api"
+ARG CSPROJ_PATH="./src/Aiursoft.GptGateway/"
+ARG PROJ_NAME="Aiursoft.GptGateway"
 
 
 # ============================

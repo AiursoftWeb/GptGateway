@@ -1,7 +1,7 @@
 using Aiursoft.Canon;
-using Aiursoft.GptGateway.Api.Models;
-using Aiursoft.GptGateway.Api.Models.OpenAi;
-using Aiursoft.GptGateway.Api.Services;
+using Aiursoft.GptGateway.Models;
+using Aiursoft.GptGateway.Models.OpenAi;
+using Aiursoft.GptGateway.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

@@ -1,6 +1,6 @@
 ﻿using Aiursoft.CSTools.Tools;
-using Aiursoft.GptGateway.Api.Models;
-using Aiursoft.GptGateway.Api.Services;
+using Aiursoft.GptGateway.Models;
+using Aiursoft.GptGateway.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;

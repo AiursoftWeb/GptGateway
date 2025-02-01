@@ -1,4 +1,4 @@
-﻿using Aiursoft.GptGateway.Api.Services;
+﻿using Aiursoft.GptGateway.Services;
 using Microsoft.Azure.CognitiveServices.Search.WebSearch.Models;
 using Microsoft.Extensions.Configuration;
 
