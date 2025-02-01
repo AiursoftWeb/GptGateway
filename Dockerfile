@@ -1,6 +1,6 @@
 ARG CSPROJ_PATH="./src/Aiursoft.GptGateway/"
 ARG PROJ_NAME="Aiursoft.GptGateway"
-
+ARG FRONT_END_PATH="./src/Aiursoft.GptGateway.Frontend/"
 
 # ============================
 # Prepare NPM Environment
@@ -10,7 +10,8 @@ WORKDIR /src
 COPY . .
 
 # NPM Build at PGK_JSON_PATH
-RUN npm install --prefix "${CSPROJ_PATH}wwwroot" --loglevel verbose
+RUN npm install --prefix "${FRONT_END_PATH}" --force --loglevel verbose
+RUN npm run build --prefix "${FRONT_END_PATH}"
 
 # ============================
 # Prepare Building Environment
@@ -22,7 +23,8 @@ COPY --from=npm-env /src .
 
 # Build
 RUN dotnet publish ${CSPROJ_PATH}${PROJ_NAME}.csproj  --configuration Release --no-self-contained --runtime linux-x64 --output /app
-RUN cp -r ${CSPROJ_PATH}/wwwroot/* /app/wwwroot
+RUN mkdir -p /app/wwwroot
+RUN cp -r ${FRONT_END_PATH}/dist/* /app/wwwroot
 
 # ============================
 # Prepare Runtime Environment
