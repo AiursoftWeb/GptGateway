@@ -28,8 +28,13 @@ public class Startup : IWebStartup
         services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
-        services.AddScoped<IPlugin, SearchPlugin>();
-        
+
+        var searchKey = configuration["BingSearchAPIKey"];
+        if (!string.IsNullOrWhiteSpace(searchKey))
+        {
+            services.AddScoped<IPlugin, SearchPlugin>();
+        }
+
         //services.AddScoped<IPlugin, WikiPlugin>();
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
