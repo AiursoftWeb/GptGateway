@@ -8,7 +8,7 @@
       <el-icon v-if="message.loading" class="is-loading" :size="20" style="margin: 1rem 0">
         <Loading />
       </el-icon>
-      <div v-else v-html="message.content"></div>
+      <div v-else v-html="renderMarkdown(message.content)"></div>
     </div>
     <el-button class="reset-button" type="danger" @click="reset" icon="delete" plain circle></el-button>
   </div>
@@ -22,7 +22,7 @@
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 8 }"
           resize="none"
-          autofocus="autofocus"
+          autofocus
           clearable
           size="large"
         >
@@ -54,6 +54,20 @@ import { ref, reactive, onMounted, nextTick } from 'vue';
 import { Search, Loading } from '@element-plus/icons-vue';
 import { versionData } from './version.js';
 import { auto as followSystemColorScheme } from 'darkreader';
+// 引入 markdown-it 进行 Markdown 渲染
+import MarkdownIt from 'markdown-it';
+
+// 初始化 MarkdownIt 实例，可根据需求开启 HTML 支持、链接自动识别等选项
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+});
+
+// 将 Markdown 渲染为 HTML 的函数
+const renderMarkdown = (text) => {
+  return md.render(text);
+};
 
 const version = ref("");
 const loading = ref(false);
