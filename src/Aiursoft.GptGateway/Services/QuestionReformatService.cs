@@ -1,4 +1,4 @@
-using Aiursoft.GptGateway.Models;
+using Aiursoft.GptClient.Abstractions;
 
 namespace Aiursoft.GptGateway.Services;
 
@@ -52,7 +52,7 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
     
     public int ConvertResponseToScore(CompletionData response)
     {
-        var responseLastOutput = response.GetActualAnswer();
+        var responseLastOutput = response.GetAnswerPart();
         logger.LogInformation("Plugin output: {0}", responseLastOutput);
         
         var truePosition = responseLastOutput.IndexOf("true", StringComparison.Ordinal);

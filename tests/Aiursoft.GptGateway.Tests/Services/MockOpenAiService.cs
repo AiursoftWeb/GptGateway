@@ -1,18 +1,15 @@
-using Aiursoft.Canon;
-using Aiursoft.GptGateway.Models;
-using Aiursoft.GptGateway.Models.OpenAi;
-using Aiursoft.GptGateway.Services;
+using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptClient.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Aiursoft.GptGateway.Tests.Services;
 
 public class MockOpenAiService(
-    CanonQueue queue,
     HttpClient httpClient,
-    ILogger<OpenAiService> logger,
+    ILogger<ChatClient> logger,
     IConfiguration configuration)
-    : OpenAiService(queue, httpClient, logger, configuration)
+    : ChatClient(httpClient, logger, configuration)
 {
     public override Task<CompletionData> AskModel(OpenAiModel model, GptModel gptModelType)
     {
@@ -48,17 +45,23 @@ public class MockOpenAiService(
         });
     }
 
-    public override Task<string> AskOne(string question, GptModel model)
+    public override Task<CompletionData> AskString(GptModel gptModelType, params string[] content)
     {
+        var question = content[0];
         if (question.Contains("这个问题是否适合使用搜索引擎。如果适合，请输出 `true`，否则请输出 `false`。"))
         {
-            return Task.FromResult("这个问题应该返回 true，而不是 false。");
+            var result = new CompletionData();
+            result.SetContent("这个问题应该返回 true，而不是 false。");
+            return Task.FromResult(result);
         }
-
+        
         if (question.Contains("请告诉我我应该搜索的文字。不要输出其它内容。"))
         {
-            return Task.FromResult("成年丝袜选购指南");
+            var result = new CompletionData();
+            result.SetContent("成年丝袜选购指南");
+            return Task.FromResult(result);
         }
-        return base.AskOne(question, model);
+        
+        return base.AskString(gptModelType, content);
     }
 }

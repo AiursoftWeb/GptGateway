@@ -2,8 +2,8 @@
 using System.Text.Json;
 using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools;
+using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Data;
-using Aiursoft.GptGateway.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;

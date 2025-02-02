@@ -1,6 +1,7 @@
 using Aiursoft.Canon;
+using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptClient.Services;
 using Aiursoft.GptGateway.Models;
-using Aiursoft.GptGateway.Models.OpenAi;
 using Aiursoft.GptGateway.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Services.Plugins;
@@ -10,7 +11,7 @@ public class SearchPlugin(
     RetryEngine retryEngine,
     ILogger<SearchPlugin> logger,
     SearchService searchService,
-    OpenAiService openAiService)
+    ChatClient openAiService)
     : IPlugin
 {
     public string PluginName => "搜索插件";
@@ -74,7 +75,7 @@ public class SearchPlugin(
             out var rawQuestion,
             mergeAsOne: true);
         var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.DeepseekR132B);
-        var textToSearch = textToSearchObject.GetActualAnswer()
+        var textToSearch = textToSearchObject.GetAnswerPart()
             .Trim('\"')
             .Trim();
 

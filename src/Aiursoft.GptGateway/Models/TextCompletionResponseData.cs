@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Aiursoft.GptClient.Abstractions;
 
 namespace Aiursoft.GptGateway.Models;
 

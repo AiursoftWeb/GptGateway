@@ -1,6 +1,6 @@
+using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptClient.Services;
 using Aiursoft.GptGateway.Models;
-using Aiursoft.GptGateway.Models.OpenAi;
-using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +9,7 @@ namespace Aiursoft.GptGateway.Controllers;
 public class HomeController(
     IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
     IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
-    OpenAiService openAiService)
+    ChatClient openAiService)
     : ControllerBase
 {
     [HttpPost]

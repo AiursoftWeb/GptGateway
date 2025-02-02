@@ -1,5 +1,5 @@
 ﻿using Aiursoft.CSTools.Tools;
-using Aiursoft.GptGateway.Models;
+using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

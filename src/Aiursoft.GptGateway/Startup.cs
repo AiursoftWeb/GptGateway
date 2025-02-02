@@ -1,5 +1,6 @@
 using Aiursoft.Canon;
 using Aiursoft.DbTools.Sqlite;
+using Aiursoft.GptClient;
 using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
@@ -21,8 +22,8 @@ public class Startup : IWebStartup
 
         services.AddTaskCanon();
         services.AddHttpClient();
+        services.AddGptClient();
         services.AddTransient<QuestionReformatService>();
-        services.AddTransient<OpenAiService>();
         services.AddTransient<SearchService>();
         
         services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();

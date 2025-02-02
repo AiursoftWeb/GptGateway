@@ -1,4 +1,5 @@
-﻿using Aiursoft.GptGateway.Services.Abstractions;
+﻿using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptGateway.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Models;
 
