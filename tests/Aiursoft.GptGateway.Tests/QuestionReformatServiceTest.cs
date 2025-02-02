@@ -16,7 +16,7 @@ public class QuestionReformatServiceTest
     [TestInitialize]
     public async Task CreateServer()
     {
-        var server = await AppAsync<TestStartup>(Array.Empty<string>(), port: _port);
+        var server = await AppAsync<TestStartup>([], port: _port);
         _service = server.Services.GetRequiredService<QuestionReformatService>();
     }
 
@@ -25,8 +25,8 @@ public class QuestionReformatServiceTest
     {
         var mockResponse = new CompletionData
         {
-            Choices = new List<ChoicesItemData>
-            {
+            Choices =
+            [
                 new()
                 {
                     Message = new MessageData
@@ -34,7 +34,7 @@ public class QuestionReformatServiceTest
                         Content = "true"
                     }
                 }
-            }
+            ]
         };
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(70, score);
@@ -45,8 +45,8 @@ public class QuestionReformatServiceTest
     {
         var mockResponse = new CompletionData
         {
-            Choices = new List<ChoicesItemData>
-            {
+            Choices =
+            [
                 new()
                 {
                     Message = new MessageData
@@ -54,7 +54,7 @@ public class QuestionReformatServiceTest
                         Content = "false"
                     }
                 }
-            }
+            ]
         };
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(0, score);
@@ -65,8 +65,8 @@ public class QuestionReformatServiceTest
     {
         var mockResponse = new CompletionData
         {
-            Choices = new List<ChoicesItemData>
-            {
+            Choices =
+            [
                 new()
                 {
                     Message = new MessageData
@@ -74,7 +74,7 @@ public class QuestionReformatServiceTest
                         Content = "true false"
                     }
                 }
-            }
+            ]
         };
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(40, score);
@@ -85,8 +85,8 @@ public class QuestionReformatServiceTest
     {
         var mockResponse = new CompletionData
         {
-            Choices = new List<ChoicesItemData>
-            {
+            Choices =
+            [
                 new()
                 {
                     Message = new MessageData
@@ -94,7 +94,7 @@ public class QuestionReformatServiceTest
                         Content = "nothing"
                     }
                 }
-            }
+            ]
         };
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(10, score);

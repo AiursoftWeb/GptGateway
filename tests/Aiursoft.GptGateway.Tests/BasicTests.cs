@@ -28,7 +28,7 @@ public class BasicTests
     [TestInitialize]
     public async Task CreateServer()
     {
-        _server = await AppAsync<TestStartup>(Array.Empty<string>(), port: _port);
+        _server = await AppAsync<TestStartup>([], port: _port);
         await _server.UpdateDbAsync<GptGatewayDbContext>(UpdateMode.MigrateThenUse);
         await _server.StartAsync();
     }
@@ -46,14 +46,14 @@ public class BasicTests
     {
         var model = new OpenAiModel
         {
-            Messages = new List<MessagesItem>()
-            {
+            Messages =
+            [
                 new()
                 {
                     Role = "user",
                     Content = "hi"
                 }
-            },
+            ],
             Stream = true,
             Model = "gpt-4",
             Temperature = 0.5,

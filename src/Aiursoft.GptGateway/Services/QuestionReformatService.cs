@@ -25,14 +25,14 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
             var mergedContent = string.Join("\n", messages.Select(m => m.Content));
             return new OpenAiModel
             {
-                Messages = new List<MessagesItem>
-                {
+                Messages =
+                [
                     new()
                     {
                         Role = "user",
                         Content = string.Format(template, mergedContent),
                     }
-                }
+                ]
             };
         }
         else
