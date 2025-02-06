@@ -4,7 +4,7 @@
 [![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/commits/master?ref_type=heads)
-[![Docker](https://img.shields.io/badge/docker-latest-blue?logo=docker)](https://hub.aiursoft.cn/#!/taglist/aiursoft/GptGateway)
+[![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
 GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like search engines.
 
@@ -59,7 +59,7 @@ First, install Docker [here](https://docs.docker.com/get-docker/).
 Then run the following commands in a Linux shell:
 
 ```bash
-image=hub.aiursoft.cn/aiursoft/gptgateway
+image=aiursoft/gptgateway
 appName=gptgateway
 sudo docker pull $image
 sudo docker run -d --name $appName --restart unless-stopped -p 5000:5000 -v /var/www/$appName:/data $image
@@ -71,7 +71,7 @@ The docker image has the following context:
 
 | Properties  | Value                               |
 |-------------|-------------------------------------|
-| Image       | hub.aiursoft.cn/aiursoft/gptgateway |
+| Image       | aiursoft/gptgateway |
 | Ports       | 5000                                |
 | Binary path | /app                                |
 | Data path   | /data                               |
