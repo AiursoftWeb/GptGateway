@@ -4,9 +4,14 @@
 [![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/commits/master?ref_type=heads)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fquickchat.aiursoft.cn%2F)](https://quickchat.aiursoft.cn)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
 GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like search engines.
+
+## Try
+
+Try a running GptGateway [here](https://quickchat.aiursoft.cn).
 
 ## Run in Ubuntu
 
