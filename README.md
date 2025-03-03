@@ -23,10 +23,10 @@ Before starting, it's suggested to install ollama first for local testing.
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-This project uses `deepseek-r1:32b` as the default model. Pull it first.
+This project uses `deepseek-r1:70b` as the default model. Pull it first.
 
 ```bash
-ollama pull deepseek-r1:32b
+ollama pull deepseek-r1:70b
 ```
 
 On your Ubuntu server, run the following command:

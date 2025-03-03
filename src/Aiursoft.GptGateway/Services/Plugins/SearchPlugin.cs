@@ -60,7 +60,7 @@ public class SearchPlugin(
             return 0;
         }
 
-        var shouldSearch = await openAiService.AskModel(requestModel, GptModel.DeepseekR132B);
+        var shouldSearch = await openAiService.AskModel(requestModel, GptModel.DeepseekR170B);
 
         return questionReformatService.ConvertResponseToScore(shouldSearch);
     }
@@ -74,7 +74,7 @@ public class SearchPlugin(
             includeSystemMessage: true,
             out var rawQuestion,
             mergeAsOne: true);
-        var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.DeepseekR132B);
+        var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.DeepseekR170B);
         var textToSearch = textToSearchObject.GetAnswerPart()
             .Trim('\"')
             .Trim();

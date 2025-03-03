@@ -29,7 +29,7 @@ public class HomeController(
         {
             await middleware.PreRequest(context);
         }
-        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.DeepseekR132B);
+        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.DeepseekR170B);
         foreach (var middleware in postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
