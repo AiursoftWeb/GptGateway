@@ -11,10 +11,12 @@ public class SearchPlugin(
     RetryEngine retryEngine,
     ILogger<SearchPlugin> logger,
     SearchService searchService,
+    IConfiguration configuration,
     ChatClient openAiService)
     : IPlugin
 {
     public string PluginName => "搜索插件";
+    private readonly GptModel _model = Enum.Parse<GptModel>(configuration["OpenAI:Model"]!);
 
     private static readonly string[] BadWords =
     [
@@ -60,7 +62,7 @@ public class SearchPlugin(
             return 0;
         }
 
-        var shouldSearch = await openAiService.AskModel(requestModel, GptModel.DeepseekR170B);
+        var shouldSearch = await openAiService.AskModel(requestModel, _model);
 
         return questionReformatService.ConvertResponseToScore(shouldSearch);
     }
@@ -74,7 +76,7 @@ public class SearchPlugin(
             includeSystemMessage: true,
             out var rawQuestion,
             mergeAsOne: true);
-        var textToSearchObject = await openAiService.AskModel(requestModel, GptModel.DeepseekR170B);
+        var textToSearchObject = await openAiService.AskModel(requestModel, _model);
         var textToSearch = textToSearchObject.GetAnswerPart()
             .Trim('\"')
             .Trim();

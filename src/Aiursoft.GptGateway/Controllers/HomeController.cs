@@ -10,9 +10,12 @@ namespace Aiursoft.GptGateway.Controllers;
 public class HomeController(
     IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
     IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
+    IConfiguration configuration,
     ChatClient openAiService)
     : ControllerBase
 {
+    private readonly GptModel _model = Enum.Parse<GptModel>(configuration["OpenAI:Model"]!);
+
     [LimitPerMin(3)]
     [HttpPost]
     [Route("/v1/chat/completions")]
@@ -29,7 +32,7 @@ public class HomeController(
         {
             await middleware.PreRequest(context);
         }
-        context.Output = await openAiService.AskModel(context.ModifiedInput, GptModel.DeepseekR170B);
+        context.Output = await openAiService.AskModel(context.ModifiedInput, _model);
         foreach (var middleware in postRequestMiddlewares)
         {
             await middleware.PostRequest(context);
