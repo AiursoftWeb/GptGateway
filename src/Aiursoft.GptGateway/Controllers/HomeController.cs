@@ -16,7 +16,7 @@ public class HomeController(
 {
     private readonly GptModel _model = Enum.Parse<GptModel>(configuration["OpenAI:Model"]!);
 
-    [LimitPerMin(3)]
+    [LimitPerMin(6)]
     [HttpPost]
     [Route("/v1/chat/completions")]
     public async Task<IActionResult> Ask([FromBody] OpenAiModel rawInput)
