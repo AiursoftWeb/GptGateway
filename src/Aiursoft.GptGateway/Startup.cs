@@ -1,7 +1,7 @@
 using Aiursoft.Canon;
 using Aiursoft.DbTools.Sqlite;
 using Aiursoft.GptClient;
-using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Entities;
 using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Plugins;

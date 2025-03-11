@@ -1,7 +1,7 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using Aiursoft.Canon;
-using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Entities;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Database;
 using Aiursoft.GptGateway.Services.Abstractions;

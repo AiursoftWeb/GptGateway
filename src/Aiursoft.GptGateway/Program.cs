@@ -1,5 +1,5 @@
 using Aiursoft.DbTools;
-using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Entities;
 using Aiursoft.WebTools;
 
 namespace Aiursoft.GptGateway;

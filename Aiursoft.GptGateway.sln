@@ -11,6 +11,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{72FCE6A3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aiursoft.GptGateway.Tests", "tests\Aiursoft.GptGateway.Tests\Aiursoft.GptGateway.Tests.csproj", "{36EAD645-9D78-4FAE-B392-63992D469E33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aiursoft.GptGateway.Entities", "src\Aiursoft.GptGateway.Entities\Aiursoft.GptGateway.Entities.csproj", "{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aiursoft.GptGateway.InMemory", "src\Aiursoft.GptGateway.InMemory\Aiursoft.GptGateway.InMemory.csproj", "{4910D46C-35C7-4A52-A512-5CED264F81A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aiursoft.GptGateway.MySql", "src\Aiursoft.GptGateway.MySql\Aiursoft.GptGateway.MySql.csproj", "{7B534152-46F8-41D6-A605-9A919F3D7987}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aiursoft.GptGateway.Sqlite", "src\Aiursoft.GptGateway.Sqlite\Aiursoft.GptGateway.Sqlite.csproj", "{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +36,29 @@ Global
 		{36EAD645-9D78-4FAE-B392-63992D469E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36EAD645-9D78-4FAE-B392-63992D469E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36EAD645-9D78-4FAE-B392-63992D469E33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4910D46C-35C7-4A52-A512-5CED264F81A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910D46C-35C7-4A52-A512-5CED264F81A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4910D46C-35C7-4A52-A512-5CED264F81A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4910D46C-35C7-4A52-A512-5CED264F81A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B534152-46F8-41D6-A605-9A919F3D7987}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B534152-46F8-41D6-A605-9A919F3D7987}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B534152-46F8-41D6-A605-9A919F3D7987}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B534152-46F8-41D6-A605-9A919F3D7987}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1B0BD152-6A9D-459F-B89E-0AA9D00FBD05} = {E1E17611-786C-43BC-92AD-5C2F306E47F5}
 		{36EAD645-9D78-4FAE-B392-63992D469E33} = {72FCE6A3-A768-4ADB-B637-D4F8169014CD}
+		{BAE6BDE8-B340-4AD5-ACD4-5D0FA6CF738E} = {E1E17611-786C-43BC-92AD-5C2F306E47F5}
+		{4910D46C-35C7-4A52-A512-5CED264F81A0} = {E1E17611-786C-43BC-92AD-5C2F306E47F5}
+		{7B534152-46F8-41D6-A605-9A919F3D7987} = {E1E17611-786C-43BC-92AD-5C2F306E47F5}
+		{26B4D4D1-4F1E-4FA6-9051-5AB1D6B82DB6} = {E1E17611-786C-43BC-92AD-5C2F306E47F5}
 	EndGlobalSection
 EndGlobal
