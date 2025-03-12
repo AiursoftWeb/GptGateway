@@ -3,23 +3,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Aiursoft.GptGateway.Migrations
+namespace Aiursoft.GptGateway.Sqlite.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRawRecords : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "OpenAiRequests",
+                name: "UserConversations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    RequestIpAddress = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false),
+                    RequestUserAgent = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     LastQuestion = table.Column<string>(type: "TEXT", maxLength: 65536, nullable: false),
                     Questions = table.Column<string>(type: "TEXT", maxLength: 65536, nullable: false),
                     Answer = table.Column<string>(type: "TEXT", maxLength: 65536, nullable: false),
+                    ToolsUsed = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false),
                     Duration = table.Column<TimeSpan>(type: "TEXT", nullable: false),
                     ConversationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     PromptTokens = table.Column<int>(type: "INTEGER", nullable: false),
@@ -32,7 +35,7 @@ namespace Aiursoft.GptGateway.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OpenAiRequests", x => x.Id);
+                    table.PrimaryKey("PK_UserConversations", x => x.Id);
                 });
         }
 
@@ -40,7 +43,7 @@ namespace Aiursoft.GptGateway.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OpenAiRequests");
+                name: "UserConversations");
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Text.Json;
 using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools;
 using Aiursoft.GptClient.Abstractions;
-using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
@@ -29,7 +29,7 @@ public class BasicTests
     public async Task CreateServer()
     {
         _server = await AppAsync<TestStartup>([], port: _port);
-        await _server.UpdateDbAsync<GptGatewayDbContext>(UpdateMode.MigrateThenUse);
+        await _server.UpdateDbAsync<GptGatewayDbContext>();
         await _server.StartAsync();
     }
 

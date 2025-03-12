@@ -12,13 +12,18 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Aiursoft.Canon" Version="9.0.2" />
-    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="9.0.9" />
     <PackageReference Include="Aiursoft.GptClient" Version="9.0.7" />
     <PackageReference Include="Aiursoft.WebTools" Version="9.0.2" />
+      <PackageReference Include="Aiursoft.DbTools.Switchable" Version="9.0.14" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Search.WebSearch" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aiursoft.GptGateway.InMemory\Aiursoft.GptGateway.InMemory.csproj" />
+    <ProjectReference Include="..\Aiursoft.GptGateway.MySql\Aiursoft.GptGateway.MySql.csproj" />
+    <ProjectReference Include="..\Aiursoft.GptGateway.Sqlite\Aiursoft.GptGateway.Sqlite.csproj" />
   </ItemGroup>
 </Project>
