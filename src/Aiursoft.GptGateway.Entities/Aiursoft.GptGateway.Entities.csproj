@@ -1,11 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>Aiursoft.GptGateway.Entities</AssemblyName>
+    <RootNamespace>Aiursoft.GptGateway.Entities</RootNamespace>
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Aiursoft.DbTools" Version="9.0.11" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Aiursoft.DbTools" Version="9.0.12" />
+  </ItemGroup>
 </Project>
