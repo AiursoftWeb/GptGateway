@@ -1,12 +1,15 @@
 using Aiursoft.Canon;
-using Aiursoft.DbTools.Sqlite;
+using Aiursoft.CSTools.Tools;
+using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
-using Aiursoft.GptGateway.Entities;
+using Aiursoft.GptGateway.InMemory;
+using Aiursoft.GptGateway.MySql;
 using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Plugins;
 using Aiursoft.GptGateway.Services.PostRequest;
 using Aiursoft.GptGateway.Services.PreRequest;
+using Aiursoft.GptGateway.Sqlite;
 using Aiursoft.WebTools.Abstractions.Models;
 
 namespace Aiursoft.GptGateway;
@@ -15,17 +18,23 @@ public class Startup : IWebStartup
 {
     public virtual void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") 
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-        services.AddAiurSqliteWithCache<GptGatewayDbContext>(connectionString);
+        var (connectionString, dbType, allowCache) = configuration.GetDbSettings();
+        services.AddSwitchableRelationalDatabase(
+            dbType: EntryExtends.IsInUnitTests() ? "InMemory": dbType,
+            connectionString: connectionString,
+            supportedDbs:
+            [
+                new MySqlSupportedDb(allowCache: allowCache, splitQuery: false),
+                new SqliteSupportedDb(allowCache: allowCache, splitQuery: true),
+                new InMemorySupportedDb()
+            ]);
 
         services.AddTaskCanon();
         services.AddHttpClient();
         services.AddGptClient();
         services.AddTransient<QuestionReformatService>();
         services.AddTransient<SearchService>();
-        
+
         services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();

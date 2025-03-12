@@ -1,5 +1,4 @@
 ﻿using Aiursoft.DbTools;
-using Aiursoft.GptGateway.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aiursoft.GptGateway.Entities;

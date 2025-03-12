@@ -3,7 +3,6 @@ using System.Text.Json;
 using Aiursoft.Canon;
 using Aiursoft.GptGateway.Entities;
 using Aiursoft.GptGateway.Models;
-using Aiursoft.GptGateway.Models.Database;
 using Aiursoft.GptGateway.Services.Abstractions;
 
 namespace Aiursoft.GptGateway.Services.PostRequest;
