@@ -42,6 +42,7 @@ public class Startup : IWebStartup
         var searchKey = configuration["BingSearchAPIKey"];
         if (!string.IsNullOrWhiteSpace(searchKey))
         {
+            Console.WriteLine("Search plugin enabled. Search key: " + searchKey.SafeSubstring(5));
             services.AddScoped<IPlugin, SearchPlugin>();
         }
 
