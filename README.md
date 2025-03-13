@@ -9,6 +9,8 @@
 
 GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like search engines.
 
+![overview](./screenshot.png)
+
 ## Try
 
 Try a running GptGateway [here](https://quickchat.aiursoft.cn).
