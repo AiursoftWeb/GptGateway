@@ -1,6 +1,5 @@
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Aiursoft.GptGateway.Tests.Services;

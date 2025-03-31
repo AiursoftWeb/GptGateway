@@ -55,11 +55,11 @@ public class BasicTests
                 }
             ],
             Stream = true,
-            Model = "gpt-4",
+            Model = "deepseek-r1:70b",
             Temperature = 0.5,
             PresencePenalty = 0
         };
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/v1/chat/completions")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/api/chat")
         {
             Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json")
         };
