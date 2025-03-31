@@ -132,8 +132,8 @@ const getResult = async () => {
       })
     });
     const data = await response.json();
-    // API 返回的数据中，最新消息在 data.message
-    pendingMessage.content = data.message.content;
+    // API 返回的数据中
+    pendingMessage.content = data.choices[0].message.content;
   } catch (error) {
     pendingMessage.content = error.toString();
   } finally {
