@@ -125,7 +125,8 @@ const getResult = async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        messages: conversation
+        messages: conversation,
+        stream: false
       })
     });
     const data = await response.json();
