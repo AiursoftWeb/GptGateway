@@ -119,7 +119,7 @@ const getResult = async () => {
 
   loading.value = true;
   try {
-    const response = await fetch('/v1/chat/completions', {
+    const response = await fetch('/api/chat/', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
