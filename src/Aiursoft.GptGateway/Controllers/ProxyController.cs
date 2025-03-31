@@ -11,6 +11,7 @@ namespace Aiursoft.GptGateway.Controllers;
 [Route("/api")]
 [Obsolete]
 public class ProxyController(
+    ILogger<ProxyController> logger,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions) : ControllerBase
 {
@@ -66,11 +67,15 @@ public class ProxyController(
         var modelConfig = modelOptions
             .Value
             .SupportedModels
-            .FirstOrDefault(m => m.Name == usingModel);
+            .FirstOrDefault(m => usingModel.StartsWith(m.Name, StringComparison.OrdinalIgnoreCase));
 
         if (modelConfig is null)
         {
             return BadRequest("Model not found.");
+        }
+        else
+        {
+            logger.LogInformation("Using model: {Model} for request with {InputModel}", modelConfig.Name, rawInput.Model);
         }
 
         var underlyingService = underlyingServices
@@ -78,6 +83,10 @@ public class ProxyController(
         if (underlyingService is null)
         {
             return BadRequest("Underlying service not found.");
+        }
+        else
+        {
+            logger.LogInformation("Using underlying service: {Service} for request with {InputModel}", underlyingService.Name, rawInput.Model);
         }
 
         var context = new ConversationContext
