@@ -88,11 +88,18 @@ public class ProxyController(
             Output = null
         };
         context.ModifiedInput.Model = modelConfig.UnderlyingModel;
-        context.ModifiedInput.Stream = false;
-        var responseStream = await underlyingService.AskStream(context.ModifiedInput);
 
-        await CopyProxyHttpResponse(HttpContext, responseStream);
-        return new EmptyResult();
+        if (context.RawInput.Stream == true)
+        {
+            var responseStream = await underlyingService.AskStream(context.ModifiedInput);
+            await CopyProxyHttpResponse(HttpContext, responseStream);
+            return new EmptyResult();
+        }
+        else
+        {
+            var response = await underlyingService.AskModel(context.ModifiedInput);
+            return Ok(response);
+        }
     }
 
     private static async Task CopyProxyHttpResponse(HttpContext context, HttpResponseMessage responseMessage)
