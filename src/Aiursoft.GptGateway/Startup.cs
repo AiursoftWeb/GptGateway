@@ -3,12 +3,14 @@ using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
 using Aiursoft.GptGateway.InMemory;
+using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.MySql;
 using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Plugins;
 using Aiursoft.GptGateway.Services.PostRequest;
 using Aiursoft.GptGateway.Services.PreRequest;
+using Aiursoft.GptGateway.Services.Underlying;
 using Aiursoft.GptGateway.Sqlite;
 using Aiursoft.WebTools.Abstractions.Models;
 
@@ -18,6 +20,7 @@ public class Startup : IWebStartup
 {
     public virtual void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
     {
+        // Relational database
         var (connectionString, dbType, allowCache) = configuration.GetDbSettings();
         services.AddSwitchableRelationalDatabase(
             dbType: EntryExtends.IsInUnitTests() ? "InMemory": dbType,
@@ -29,12 +32,22 @@ public class Startup : IWebStartup
                 new InMemorySupportedDb()
             ]);
 
+        // Configuration
+        services.Configure<UnderlyingsOptions>(configuration.GetSection("Underlyings"));
+        services.Configure<GptModelOptions>(options =>
+        {
+            options.DefaultIncomingModel = configuration["DefaultIncomingModel"]!;
+            options.SupportedModels = configuration.GetSection("SupportedModels")
+                .Get<List<SupportedModel>>()!;
+        });
+
         services.AddTaskCanon();
         services.AddHttpClient();
         services.AddGptClient();
         services.AddTransient<QuestionReformatService>();
         services.AddTransient<SearchService>();
 
+        // TODO: Use these plugins.
         services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
@@ -50,6 +63,10 @@ public class Startup : IWebStartup
         services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
         services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();
+
+        services.AddScoped<IUnderlyingService, OpenAiService>();
+        services.AddScoped<IUnderlyingService, DeepSeekService>();
+        services.AddScoped<IUnderlyingService, OllamaService>();
 
         services
             .AddControllers()
