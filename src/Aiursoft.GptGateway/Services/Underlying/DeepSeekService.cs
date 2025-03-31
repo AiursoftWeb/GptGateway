@@ -1,3 +1,4 @@
+using Aiursoft.CSTools.Tools;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
 using Aiursoft.GptGateway.Models.Configuration;
@@ -16,7 +17,8 @@ public class DeepSeekService(
     {
         model.Stream = true;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
-        logger.LogInformation("Ask DeepSeek model with endpoint: {endPoint}", endPoint);
+        logger.LogInformation("Ask DeepSeek stream with endpoint: {endPoint}, token is {token}", endPoint,
+            options.Value.DeepSeek.Token.SafeSubstring(10));
         return client.AskStream(
             model: model,
             completionApiUrl: endPoint,
@@ -27,7 +29,8 @@ public class DeepSeekService(
     {
         model.Stream = false;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
-        logger.LogInformation("Ask DeepSeek model with endpoint: {endPoint}", endPoint);
+        logger.LogInformation("Ask DeepSeek model with endpoint: {endPoint}, token is {token}", endPoint,
+            options.Value.DeepSeek.Token.SafeSubstring(10));
         return client.AskModel(
             model: model,
             completionApiUrl: endPoint,
