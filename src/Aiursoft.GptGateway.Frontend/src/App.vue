@@ -126,6 +126,8 @@ const getResult = async () => {
       },
       body: JSON.stringify({
         messages: conversation,
+
+        // TODO: Support stream = true.
         stream: false
       })
     });
