@@ -71,6 +71,7 @@ public class ProxyController(
 
         if (modelConfig is null)
         {
+            logger.LogWarning("Model not found for request with {InputModel}", rawInput.Model);
             return BadRequest("Model not found.");
         }
         else
@@ -82,6 +83,7 @@ public class ProxyController(
             .FirstOrDefault(s => s.Name == modelConfig.UnderlyingProvider);
         if (underlyingService is null)
         {
+            logger.LogWarning("Underlying service not found for request with {InputModel}", rawInput.Model);
             return BadRequest("Underlying service not found.");
         }
         else
