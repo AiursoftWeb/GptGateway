@@ -3,6 +3,7 @@ using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
 using Aiursoft.GptGateway.InMemory;
+using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.MySql;
 using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Abstractions;
@@ -18,6 +19,7 @@ public class Startup : IWebStartup
 {
     public virtual void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
     {
+        // Relational database
         var (connectionString, dbType, allowCache) = configuration.GetDbSettings();
         services.AddSwitchableRelationalDatabase(
             dbType: EntryExtends.IsInUnitTests() ? "InMemory": dbType,
@@ -28,6 +30,15 @@ public class Startup : IWebStartup
                 new SqliteSupportedDb(allowCache: allowCache, splitQuery: true),
                 new InMemorySupportedDb()
             ]);
+
+        // Configuration
+        services.Configure<UnderlyingsOptions>(configuration.GetSection("Underlyings"));
+        services.Configure<GptModelOptions>(options =>
+        {
+            options.DefaultIncomingModel = configuration["DefaultIncomingModel"]!;
+            options.SupportedModels = configuration.GetSection("SupportedModels")
+                .Get<List<SupportedModel>>()!;
+        });
 
         services.AddTaskCanon();
         services.AddHttpClient();

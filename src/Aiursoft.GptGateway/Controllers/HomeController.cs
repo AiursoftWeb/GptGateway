@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Aiursoft.GptGateway.Controllers;
 
+[Obsolete]
 public class HomeController(
     IEnumerable<IPreRequestMiddleware> preRequestMiddlewares,
     IEnumerable<IPostRequestMiddleware> postRequestMiddlewares,
@@ -18,7 +19,7 @@ public class HomeController(
 
     [LimitPerMin(6)]
     [HttpPost]
-    [Route("/v1/chat/completions")]
+    [Route("/v1/chat/completions_obs")]
     public async Task<IActionResult> Ask([FromBody] OpenAiModel rawInput)
     {
         var context = new ConversationContext
