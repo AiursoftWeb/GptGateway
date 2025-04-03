@@ -4,7 +4,7 @@
 [![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/GptGateway/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/pipelines)
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.cn/aiursoft/GptGateway/-/commits/master?ref_type=heads)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fquickchat.aiursoft.cn%2F)](https://quickchat.aiursoft.cn)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fopenweb.aiursoft.cn%2F)](https://openweb.aiursoft.cn/)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
 GptGateway acts as an Ollama server, with customized models proxying to different underlying models.
@@ -32,7 +32,7 @@ By leveraging GptGateway, you can streamline your development process and focus 
 
 ## Try
 
-Try a running GptGateway [here](https://quickchat.aiursoft.cn).
+Try a running GptGateway [here](https://openweb.aiursoft.cn/).
 
 ## Run in Ubuntu
 
