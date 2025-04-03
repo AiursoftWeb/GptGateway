@@ -7,9 +7,7 @@
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fopenweb.aiursoft.cn%2F)](https://openweb.aiursoft.cn/)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
-GptGateway acts as an Ollama server, with customized models proxying to different underlying models.
-
-With GptGateway, you can focus on the same API model (as Ollama) and switch between different models easily.
+GptGateway seamlessly masquerades as an Ollama server, unifying diverse API interactions for streamlined AI chat solutions.
 
 ![overview](./screenshot.png)
 
