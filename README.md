@@ -19,6 +19,17 @@ With GptGateway, you can focus on the same API model (as Ollama) and switch betw
 | OpenAI API   | ✅            | ✅            |
 | DeepSeek API | ✅            | ✅            |
 
+If you've already implemented the front-end for Openweb-ui or any AI chat tool based on Ollama, you are likely familiar with the challenge of managing the diverse APIs of various underlying services like OpenAI, Deepseek, and Ollama. This often leads to a cumbersome process of ensuring compatibility and adaptation across different platforms.
+
+GptGateway is designed to address these challenges by seamlessly integrating with your existing setup. It operates by masquerading as an Ollama server, providing APIs that are fully compatible with Ollama's specifications. This ensures effortless support for any Ollama-based front-end you may be using.
+
+- **Unified API Interface**: GptGateway allows you to manipulate JSON and create multiple models, named as you see fit. You can then configure these models to interact with the appropriate underlying services.
+- **Simplified Coupling**: Your application only needs to couple with Ollama, significantly reducing complexity.
+- **API Translation**: GptGateway handles the translation of requests and responses to match the APIs of different service providers.
+- **Streaming Support**: The gateway supports streaming transmission.
+
+By leveraging GptGateway, you can streamline your development process and focus on building robust AI chat solutions without the hassle of dealing with disparate API protocols.
+
 ## Try
 
 Try a running GptGateway [here](https://quickchat.aiursoft.cn).
@@ -26,18 +37,6 @@ Try a running GptGateway [here](https://quickchat.aiursoft.cn).
 ## Run in Ubuntu
 
 The following script will install\update this app on your Ubuntu server. Supports Ubuntu 22.04.
-
-Before starting, it's suggested to install ollama first for local testing.
-
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-This project uses `deepseek-r1:70b` as the default model. Pull it first.
-
-```bash
-ollama pull deepseek-r1:70b
-```
 
 On your Ubuntu server, run the following command:
 
