@@ -1,24 +1,14 @@
 using System.Text;
-using System.Text.Json;
+using System.Text.Json.Serialization;
+using JsonException = System.Text.Json.JsonException;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Aiursoft.GptGateway.Services;
 
-public class StreamTransformService
+public class StreamTransformService(ILogger<StreamTransformService> logger)
 {
-    private readonly ILogger<StreamTransformService> _logger;
-
-    public StreamTransformService(ILogger<StreamTransformService> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task CopyProxyHttpResponse(HttpContext context, HttpResponseMessage responseMessage, string sourceFormat, string targetModel)
     {
-        if (responseMessage == null)
-        {
-            throw new ArgumentNullException(nameof(responseMessage));
-        }
-
         var response = context.Response;
         response.StatusCode = (int)responseMessage.StatusCode;
 
@@ -45,37 +35,36 @@ public class StreamTransformService
         // Remove transfer-encoding as we'll handle the streaming ourselves
         response.Headers.Remove("transfer-encoding");
 
-        using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
+        await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
         if (sourceFormat == "OpenAI" && !string.IsNullOrEmpty(targetModel))
         {
             // Transform OpenAI format to Ollama format
-            await TransformOpenAIToOllamaStream(responseStream, response.Body, targetModel, context.RequestAborted);
+            await TransformOpenAiToOllamaStream(responseStream, response.Body, targetModel, context.RequestAborted);
         }
         else
         {
             // Direct copy for Ollama or non-streaming responses
-            var streamCopyBufferSize = 81920;
+            const int streamCopyBufferSize = 81920;
             await responseStream.CopyToAsync(response.Body, streamCopyBufferSize, context.RequestAborted);
         }
     }
 
-    private async Task TransformOpenAIToOllamaStream(Stream input, Stream output, string targetModel, CancellationToken cancellationToken)
+    private async Task TransformOpenAiToOllamaStream(Stream input, Stream output, string targetModel, CancellationToken cancellationToken)
     {
         using var reader = new StreamReader(input, Encoding.UTF8);
 
-        var isFirstChunk = true;
         var finishReason = string.Empty;
 
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync();
+            var line = await reader.ReadLineAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             // Remove "data: " prefix if it exists (SSE format)
             if (line.StartsWith("data: "))
             {
-                line = line.Substring(6);
+                line = line[6..];
             }
 
             // Skip "[DONE]" message
@@ -84,23 +73,11 @@ public class StreamTransformService
             try
             {
                 // Parse OpenAI chunk
-                var openAiChunk = JsonSerializer.Deserialize<OpenAIChunkResponse>(line);
+                var openAiChunk = JsonSerializer.Deserialize<OpenAiChunkResponse>(line);
                 if (openAiChunk == null) continue;
 
                 var choice = openAiChunk.Choices.FirstOrDefault();
                 if (choice == null) continue;
-
-                // First chunk contains role information
-                if (isFirstChunk && choice.Delta.Role == "assistant")
-                {
-                    // For Ollama compatibility, add thinking tag at the start
-                    await WriteOllamaChunk(output, targetModel, "<think>", false, cancellationToken);
-                    await WriteOllamaChunk(output, targetModel, "\n\n", false, cancellationToken);
-                    await WriteOllamaChunk(output, targetModel, "</think>", false, cancellationToken);
-                    await WriteOllamaChunk(output, targetModel, "\n\n", false, cancellationToken);
-                    isFirstChunk = false;
-                    continue;
-                }
 
                 // Check for content
                 var content = choice.Delta.Content;
@@ -114,7 +91,7 @@ public class StreamTransformService
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to parse OpenAI chunk: {Line}", line);
+                logger.LogError(ex, "Failed to parse OpenAI chunk: {Line}", line);
             }
         }
 
@@ -164,26 +141,41 @@ public class StreamTransformService
 }
 
 // OpenAI response model classes
-public class OpenAIChunkResponse
+public class OpenAiChunkResponse
 {
-    public required string Id { get; set; }
-    public required string Object { get; set; }
-    public required long Created { get; set; }
-    public required string Model { get; set; }
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
+
+    [JsonPropertyName("object")]
+    public required string Object { get; init; }
+
+    [JsonPropertyName("created")]
+    public required long Created { get; init; }
+
+    [JsonPropertyName("model")]
+    public required string Model { get; init; }
 
     // ReSharper disable once CollectionNeverUpdated.Global
-    public required List<OpenAIChoice> Choices { get; init; } = new();
+    [JsonPropertyName("choices")]
+    public required List<OpenAiChoice> Choices { get; init; } = new();
 }
 
-public class OpenAIChoice
+// ReSharper disable once ClassNeverInstantiated.Global
+public class OpenAiChoice
 {
-    public required OpenAIDelta Delta { get; set; }
-    public required int Index { get; set; }
-    public required string FinishReason { get; set; }
+    [JsonPropertyName("delta")]
+    public required OpenAiDelta Delta { get; init; }
+
+    [JsonPropertyName("finish_reason")]
+    public string? FinishReason { get; init; }
 }
 
-public class OpenAIDelta
+// ReSharper disable once ClassNeverInstantiated.Global
+public class OpenAiDelta
 {
-    public required string Role { get; set; }
-    public required string Content { get; set; }
+    [JsonPropertyName("role")]
+    public string? Role { get; init; }
+
+    [JsonPropertyName("content")]
+    public string? Content { get; init; }
 }
