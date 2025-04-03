@@ -7,9 +7,17 @@
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fquickchat.aiursoft.cn%2F)](https://quickchat.aiursoft.cn)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
-GptGateway is a OpenAI ChatGPT API gateway. Allowing GPT to call tools like search engines.
+GptGateway acts as an Ollama server, with customized models proxying to different underlying models.
+
+With GptGateway, you can focus on the same API model (as Ollama) and switch between different models easily.
 
 ![overview](./screenshot.png)
+
+| Provider     | Chat Support | Stream Chat  |
+|--------------|--------------|--------------|
+| Ollama       | ✅            | ✅            |
+| OpenAI API   | ✅            | ✅            |
+| DeepSeek API | ✅            | ✅            |
 
 ## Try
 
