@@ -37,7 +37,7 @@ public class StreamTransformService(ILogger<StreamTransformService> logger)
 
         await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
-        if (sourceFormat == "OpenAI" && !string.IsNullOrEmpty(targetModel))
+        if ((sourceFormat == "OpenAI" || sourceFormat == "DeepSeek") && !string.IsNullOrEmpty(targetModel))
         {
             // Transform OpenAI format to Ollama format
             await TransformOpenAiToOllamaStream(responseStream, response.Body, targetModel, context.RequestAborted);
