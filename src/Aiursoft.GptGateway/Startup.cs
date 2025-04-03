@@ -44,6 +44,7 @@ public class Startup : IWebStartup
         services.AddTaskCanon();
         services.AddHttpClient();
         services.AddGptClient();
+        services.AddScoped<StreamTransformService>();
         services.AddTransient<QuestionReformatService>();
         services.AddTransient<SearchService>();
 

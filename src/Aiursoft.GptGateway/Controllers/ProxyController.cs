@@ -1,6 +1,7 @@
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
+using Aiursoft.GptGateway.Services;
 using Aiursoft.GptGateway.Services.Underlying;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ namespace Aiursoft.GptGateway.Controllers;
 [Route("/api")]
 [Obsolete]
 public class ProxyController(
+    StreamTransformService streamTransformService,
     ILogger<ProxyController> logger,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions) : ControllerBase
@@ -103,7 +105,14 @@ public class ProxyController(
         if (context.RawInput.Stream == true)
         {
             var responseStream = await underlyingService.AskStream(context.ModifiedInput);
-            await CopyProxyHttpResponse(HttpContext, responseStream);
+
+            // Use the StreamTransformService to handle the transformation if needed
+            await streamTransformService.CopyProxyHttpResponse(
+                HttpContext,
+                responseStream,
+                underlyingService.Name,  // Pass service name to identify source format
+                modelConfig.Name);       // Pass target model name for Ollama format
+
             return new EmptyResult();
         }
         else
