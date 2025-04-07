@@ -6,4 +6,5 @@ public class SupportedModel
     public required string Description { get; init; }
     public required string UnderlyingProvider { get; init; }
     public required string UnderlyingModel { get; init; }
+    public required string[] Plugins { get; init; }
 }

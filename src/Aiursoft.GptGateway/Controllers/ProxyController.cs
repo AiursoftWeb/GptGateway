@@ -2,10 +2,10 @@ using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.Services;
+using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Underlying;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace Aiursoft.GptGateway.Controllers;
 
@@ -14,6 +14,7 @@ namespace Aiursoft.GptGateway.Controllers;
 public class ProxyController(
     StreamTransformService streamTransformService,
     ILogger<ProxyController> logger,
+    IEnumerable<IPlugin> plugins,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions) : ControllerBase
 {
@@ -39,7 +40,7 @@ public class ProxyController(
                 Model = name,
                 ModifiedAt = DateTime.UtcNow,
                 Size = 4683075271,
-                Digest = "0a8c266910232fd3291e71e5ba1e058cc5af9d411192cf88b6d30e92b6e73163",
+                Digest = GenerateHash(name),
                 Details = new ModelDetails
                 {
                     ParentModel = string.Empty,
@@ -57,6 +58,14 @@ public class ProxyController(
         {
             models = modelTags
         });
+    }
+
+    private static string GenerateHash(string input)
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var hash = sha256.ComputeHash(bytes);
+        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
     }
 
     [HttpPost("chat")]
@@ -101,6 +110,22 @@ public class ProxyController(
             Output = null
         };
         context.ModifiedInput.Model = modelConfig.UnderlyingModel;
+        foreach (var plugin in modelConfig.Plugins)
+        {
+            var pluginService = plugins
+                .FirstOrDefault(p => p.PluginName == plugin);
+            if (pluginService is null)
+            {
+                logger.LogWarning("Plugin not found for request with {InputModel}", rawInput.Model);
+                return BadRequest($"Plugin with name {plugin} not found.");
+            }
+            else
+            {
+                logger.LogInformation("Using plugin: {Plugin} for request with {InputModel}", pluginService.PluginName, rawInput.Model);
+            }
+
+            await pluginService.ProcessMessage(context, underlyingService);
+        }
 
         if (context.RawInput.Stream == true)
         {
@@ -121,46 +146,4 @@ public class ProxyController(
             return Ok(response);
         }
     }
-}
-
-public class ModelTag
-{
-    [JsonProperty("name")]
-    public required string Name { get; init; }
-
-    [JsonProperty("model")]
-    public required string Model { get; init; }
-
-    [JsonProperty("modified_at")]
-    public required DateTime ModifiedAt { get; init; }
-
-    [JsonProperty("size")]
-    public required long Size { get; init; }
-
-    [JsonProperty("digest")]
-    public required string Digest { get; init; }
-
-    [JsonProperty("details")]
-    public required ModelDetails Details { get; init; }
-}
-
-public class ModelDetails
-{
-    [JsonProperty("parent_model")]
-    public required string ParentModel { get; init; }
-
-    [JsonProperty("format")]
-    public required string Format { get; init; }
-
-    [JsonProperty("family")]
-    public required string Family { get; init; }
-
-    [JsonProperty("families")]
-    public required string[] Families { get; init; }
-
-    [JsonProperty("parameter_size")]
-    public required string ParameterSize { get; init; }
-
-    [JsonProperty("quantization_level")]
-    public required string QuantizationLevel { get; init; }
 }

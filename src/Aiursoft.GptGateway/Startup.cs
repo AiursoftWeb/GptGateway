@@ -51,7 +51,6 @@ public class Startup : IWebStartup
         // TODO: Use these plugins.
         services.AddScoped<IPreRequestMiddleware, TrimInputMiddleware>();
         services.AddScoped<IPreRequestMiddleware, InjectTimeMiddleware>();
-        services.AddScoped<IPreRequestMiddleware, InjectPluginsMiddleware>();
 
         var searchKey = configuration["BingSearchAPIKey"];
         if (!string.IsNullOrWhiteSpace(searchKey))
@@ -60,10 +59,7 @@ public class Startup : IWebStartup
             services.AddScoped<IPlugin, SearchPlugin>();
         }
 
-        //services.AddScoped<IPlugin, WikiPlugin>();
-        services.AddScoped<IPostRequestMiddleware, RecordInDbMiddleware>();
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();
-        services.AddScoped<IPostRequestMiddleware, ShowPluginUsageMiddleware>();
 
         services.AddScoped<IUnderlyingService, OpenAiService>();
         services.AddScoped<IUnderlyingService, DeepSeekService>();

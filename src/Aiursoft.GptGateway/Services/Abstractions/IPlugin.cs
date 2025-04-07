@@ -1,13 +1,11 @@
-﻿using Aiursoft.GptClient.Abstractions;
-using Aiursoft.GptGateway.Models;
+﻿using Aiursoft.GptGateway.Models;
+using Aiursoft.GptGateway.Services.Underlying;
 
 namespace Aiursoft.GptGateway.Services.Abstractions;
 
 public interface IPlugin
 {
     string PluginName { get; }
-    
-    Task<int> GetUsagePoint(OpenAiModel input);
-    
-    Task<string> GetPluginAppendedMessage(ConversationContext context);
+
+    Task ProcessMessage(ConversationContext context, IUnderlyingService service);
 }

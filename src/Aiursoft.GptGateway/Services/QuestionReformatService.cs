@@ -4,36 +4,27 @@ namespace Aiursoft.GptGateway.Services;
 
 public class QuestionReformatService(ILogger<QuestionReformatService> logger)
 {
-    public OpenAiModel Map(OpenAiModel model, string template, int take, bool includeSystemMessage, out string lastRawQuestion, bool mergeAsOne = false)
+    public OpenAiModel Map(OpenAiModel model, string template, int take, out string lastRawQuestion, bool mergeAsOne = false)
     {
-        logger.LogInformation("Formatting Question to get plugin input: {0}", model.Messages.LastOrDefault()?.Content);
+        logger.LogInformation("Formatting Question to get plugin input: {LastMessageContent}", model.Messages.LastOrDefault()?.Content);
         var messagesQuery = model.Messages
-            //.Where(m => !m.IsInjected);
             .AsEnumerable();
         lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
 
-        if (!includeSystemMessage)
-        {
-            messagesQuery = messagesQuery
-                .Where(m => m.Role == "user");
-        }
         messagesQuery = messagesQuery.TakeLast(take);
         var messages = messagesQuery.ToArray();
-        
+
         if (mergeAsOne)
         {
             var mergedContent = string.Join("\n", messages.Select(m => m.Content));
-            return new OpenAiModel
-            {
-                Messages =
-                [
-                    new()
-                    {
-                        Role = "user",
-                        Content = string.Format(template, mergedContent),
-                    }
-                ]
-            };
+            model.Messages =
+            [
+                new MessagesItem
+                {
+                    Role = "user",
+                    Content = string.Format(template, mergedContent),
+                }
+            ];
         }
         else
         {
@@ -43,18 +34,17 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
                 Role = "user",
                 Content = string.Format(template, messagesArray[^1].Content),
             };
-            return new OpenAiModel
-            {
-                Messages = messagesArray.ToList(),
-            };
+            model.Messages = messagesArray.ToList();
         }
+
+        return model;
     }
-    
+
     public int ConvertResponseToScore(CompletionData response)
     {
         var responseLastOutput = response.GetAnswerPart();
         logger.LogInformation("Plugin output: {0}", responseLastOutput);
-        
+
         var truePosition = responseLastOutput.IndexOf("true", StringComparison.Ordinal);
         var falsePosition = responseLastOutput.IndexOf("false", StringComparison.Ordinal);
         // Has true no false, return 70
@@ -65,14 +55,17 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
         {
             return 70;
         }
+
         if (falsePosition >= 0 && truePosition == -1)
         {
             return 0;
         }
+
         if (truePosition >= 0 && falsePosition >= 0)
         {
             return truePosition < falsePosition ? 40 : 0;
         }
+
         return 10;
     }
 }
