@@ -16,8 +16,7 @@ public class OllamaService(
     {
         model.Stream = true;
         var endPoint = options.Value.Ollama.Instance.TrimEnd('/') + "/api/chat";
-        logger.LogInformation("Ask Ollama model streamly with endpoint: {endPoint}, token is {token}", endPoint,
-            string.Empty);
+        logger.LogInformation("Ask Ollama model streamly with endpoint: {endPoint}.", endPoint);
         return client.AskStream(
             model: model,
             completionApiUrl: endPoint,
@@ -28,8 +27,7 @@ public class OllamaService(
     {
         model.Stream = false;
         var endPoint = options.Value.Ollama.Instance.TrimEnd('/') + "/api/chat";
-        logger.LogInformation("Ask Ollama model with endpoint: {endPoint}, token is {token}", endPoint,
-            string.Empty);
+        logger.LogInformation("Ask Ollama model with endpoint: {endPoint}.", endPoint);
         return client.AskModel(
             model: model,
             completionApiUrl: endPoint,
