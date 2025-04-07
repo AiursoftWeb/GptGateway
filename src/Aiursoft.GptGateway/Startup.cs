@@ -57,6 +57,7 @@ public class Startup : IWebStartup
         {
             Console.WriteLine("Search plugin enabled. Search key: " + searchKey.SafeSubstring(15));
             services.AddScoped<IPlugin, SearchPlugin>();
+            services.AddScoped<IPlugin, WebInvestigatePlugin>();
         }
 
         services.AddScoped<IPostRequestMiddleware, MockModelMiddleware>();

@@ -6,7 +6,7 @@ using Aiursoft.GptGateway.Services.Underlying;
 
 namespace Aiursoft.GptGateway.Services.Plugins;
 
-public class SearchPlugin( // TODO: Decouple openAiService from SearchPlugin
+public class SearchPlugin(
     QuestionReformatService questionReformatService,
     RetryEngine retryEngine,
     ILogger<SearchPlugin> logger,
