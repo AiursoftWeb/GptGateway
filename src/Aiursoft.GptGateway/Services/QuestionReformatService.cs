@@ -1,3 +1,4 @@
+using Aiursoft.CSTools.Tools;
 using Aiursoft.GptClient.Abstractions;
 
 namespace Aiursoft.GptGateway.Services;
@@ -12,7 +13,7 @@ public class QuestionReformatService(ILogger<QuestionReformatService> logger)
 
     public OpenAiModel Map(OpenAiModel model, string template, int take, out string lastRawQuestion, bool mergeAsOne = false)
     {
-        logger.LogInformation("Formatting Question to get plugin input: {LastMessageContent}", model.Messages.LastOrDefault()?.Content);
+        logger.LogInformation("Formatting Question: {LastMessageContent}", model.Messages.LastOrDefault()?.Content!.SafeSubstring(80));
         var messagesQuery = model.Messages
             .AsEnumerable();
         lastRawQuestion = model.Messages.LastOrDefault()?.Content!;
