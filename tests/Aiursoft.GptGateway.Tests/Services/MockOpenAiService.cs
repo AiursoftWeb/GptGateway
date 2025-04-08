@@ -9,7 +9,7 @@ public class MockOpenAiService(
     ILogger<ChatClient> logger)
     : ChatClient(httpClient, logger)
 {
-    public override Task<CompletionData> AskModel(OpenAiModel model, string completionApiUrl, string? token)
+    public override Task<CompletionData> AskModel(OpenAiModel model, string completionApiUrl, string? token, CancellationToken cancellationToken)
     {
         return Task.FromResult(new CompletionData
         {
@@ -43,12 +43,12 @@ public class MockOpenAiService(
         });
     }
 
-    public override Task<HttpResponseMessage> AskStream(OpenAiModel model, string completionApiUrl, string? token)
+    public override Task<HttpResponseMessage> AskStream(OpenAiModel model, string completionApiUrl, string? token, CancellationToken cancellationToken)
     {
         return Task.FromResult(new HttpResponseMessage());
     }
 
-    public override Task<CompletionData> AskString(string modelType, string completionApiUrl, string? token, params string[] content)
+    public override Task<CompletionData> AskString(string modelType, string completionApiUrl, string? token, string[] content, CancellationToken cancellationToken)
     {
         return Task.FromResult(new CompletionData
         {
