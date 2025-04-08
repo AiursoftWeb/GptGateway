@@ -5,24 +5,106 @@ using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Underlying;
+using Microsoft.Azure.CognitiveServices.Search.WebSearch.Models;
 
 namespace Aiursoft.GptGateway.Services.Plugins;
 
 public class WebInvestigatePlugin(
     QuestionReformatService questionReformatService,
     RetryEngine retryEngine,
+    CanonPool canonPool,
+    SearchService searchService,
     ILogger<SearchPlugin> logger)
     : IPlugin
 {
     public string PluginName => "web-investigate";
 
-    public async Task ProcessMessage(ConversationContext context, IUnderlyingService service)
+    private static readonly string[] BadSearchWords =
+    [
+        "今天", "昨天", "明天",
+        "今日", "昨日", "明日",
+        "现在", "当下", "目前",
+        "这里", "那里",
+        "这个", "那个",
+        "这种", "那种",
+        "这样", "那样",
+        "这么", "那么",
+        "这些", "那些",
+        "当时", "当地",
+        "当天", "当年", "当月", "当周",
+        "如何", "什么",
+        "哪里", "哪个", "哪种", "哪样", "哪么", "哪些",
+        "是什么", "是哪里", "是哪个", "是哪种", "是哪样", "是哪么", "是哪些",
+        "怎么", "怎么样", "怎么着", "怎么办", "怎么会", "怎么说", "怎么做", "怎么了",
+        "建议", "搜索", "词条", "\""
+    ];
+
+    public async Task ProcessMessage(ConversationContext context, IUnderlyingService service, CancellationToken cancellationToken)
     {
         var question = questionReformatService.MergeAsString(
             model: context.ModifiedInput,
             take: 5,
-            out var rawQuestion);
+            out var _);
 
+        // Get trimmed question.
+        var trimmedQuestion = await GetTrimmedQuestion(question, service, context.ModifiedInput.Model!, cancellationToken);
+        var initialSearch = await GetInitialSearchEntries(trimmedQuestion, service, context.ModifiedInput.Model!, cancellationToken);
+
+        var searchedPages = new List<WebPage>();
+        foreach (var searchTerm in initialSearch)
+        {
+            canonPool.RegisterNewTaskToPool(async () =>
+            {
+                var searchResult = await retryEngine.RunWithRetry(_ => searchService.DoSearch(searchTerm, 10, cancellationToken));
+                var pages = searchResult.WebPages?.Value!;
+                lock (searchedPages)
+                {
+                    searchedPages.AddRange(pages);
+                }
+            });
+        }
+        await canonPool.RunAllTasksInPoolAsync(maxDegreeOfParallelism: 3);
+        var searchedText = searchedPages
+            .GroupBy(t => t.DisplayUrl) // Distinct by URL
+            .Select(t => t.First())
+            .Select(t =>
+                $"""
+                  ## {t.Name}
+
+                  {t.DisplayUrl}
+
+                  {t.Snippet}
+
+                  """).ToArray();
+        var formattedResult = searchedText.Any() ? string.Join("\n\n", searchedText) : "没有搜索到任何结果。";
+
+        // TODO: Ask AI is the result enough for investigation? Optional to additional search 2 more times.
+        // TODO: Ask AI based on the result, which pages (TOP 15) shall we visit.
+        // TODO: For each page:
+        //   TODO: Actually visit the pages and get the content. Trim the HTML.
+        //   TODO: Ask AI to find useful information from the trimmed HTML. Or any other link might provide helpful information.
+        //   TODO: If (Need to visit additional pages) { Keep doing this loop until we have enough information. }
+        // TODO: Summarize from all the information we have. Ask AI to summarize the information.
+
+        const string answerPrompt =
+            "你是一个旨在解决人类问题的人工智能。现在我正在调查一个问题。在调查之前，我简单搜索了 `{0}`。并得到了这样的搜索结果。\n\n\n{1}\n\n 这些结果或许有一些参考价值吧，也可能没有。就当是补充一些你的知识了。\n\n现在，问题是：\n\n```\n{2}\n```\n\n请解答。在给出答案时，如果可以，请在答案的最终附带使用 markdown 的链接格式 (也就是：[标题](URL) 的格式) 的引用部分来表达你引用的是哪条来源。";
+        var finalPrompt = string.Format(
+            answerPrompt,
+            trimmedQuestion,
+            formattedResult,
+            question);
+        context.ModifiedInput.Messages =
+        [
+            new MessagesItem
+            {
+                Role = "user",
+                Content = finalPrompt,
+            }
+        ];
+    }
+
+    private async Task<string> GetTrimmedQuestion(string rawQuestion, IUnderlyingService service, string model, CancellationToken cancellationToken)
+    {
         var trimmedQuestion = rawQuestion;
         while (true)
         {
@@ -34,7 +116,7 @@ public class WebInvestigatePlugin(
 
                 trimmedQuestion =
                     await retryEngine.RunWithRetry(
-                        _ => ExpandQuestion(trimmedQuestion, service, context.ModifiedInput.Model!),
+                        _ => ExpandQuestion(trimmedQuestion, service, model, cancellationToken),
                         attempts: 5);
             }
             else if (trimmedQuestion.Length > 2000)
@@ -45,31 +127,21 @@ public class WebInvestigatePlugin(
 
                 trimmedQuestion =
                     await retryEngine.RunWithRetry(
-                        _ => TrimQuestion(trimmedQuestion, service, context.ModifiedInput.Model!),
+                        _ => FormatQuestion(trimmedQuestion, service, model, cancellationToken),
                         attempts: 5);
             }
             else
             {
                 logger.LogTrace(
                     "The question user asked {RawQuestion} is normal (Length {Length}), we will not change it.",
-                    trimmedQuestion.SafeSubstring(30), question.Length);
+                    trimmedQuestion.SafeSubstring(30), rawQuestion.Length);
                 break;
             }
         }
-
-        // TODO: Call search engine to get the search result.
-
-        context.ModifiedInput.Messages =
-        [
-            new MessagesItem
-            {
-                Role = "user",
-                Content = trimmedQuestion,
-            }
-        ];
+        return trimmedQuestion;
     }
 
-    private async Task<string> ExpandQuestion(string rawQuestion, IUnderlyingService service, string model)
+    private async Task<string> ExpandQuestion(string rawQuestion, IUnderlyingService service, string model, CancellationToken cancellationToken)
     {
         const string expandPrompt =
             """
@@ -135,7 +207,8 @@ public class WebInvestigatePlugin(
         var result = await service.AskFormattedText(
             template: expandPrompt,
             content: rawQuestion,
-            model: model);
+            model: model,
+            cancellationToken: cancellationToken);
 
         var regex = new Regex(@"<questions>([\s\S]*?)</questions>", RegexOptions.IgnoreCase);
         var match = regex.Match(result);
@@ -146,11 +219,11 @@ public class WebInvestigatePlugin(
         }
         else
         {
-            throw new Exception($"Failed to extract questions from the response: {result}.");
+            throw new Exception($"Failed to extract questions from the request '{rawQuestion}'. response: '{result}'.");
         }
     }
 
-    private async Task<string> TrimQuestion(string rawQuestion, IUnderlyingService service, string model)
+    private async Task<string> FormatQuestion(string rawQuestion, IUnderlyingService service, string model, CancellationToken cancellationToken)
     {
         const string expandPrompt =
             """
@@ -169,7 +242,8 @@ public class WebInvestigatePlugin(
         var result = await service.AskFormattedText(
             template: expandPrompt,
             content: rawQuestion,
-            model: model);
+            model: model,
+            cancellationToken: cancellationToken);
 
         var regex = new Regex(@"<markdown>([\s\S]*?)</markdown>", RegexOptions.IgnoreCase);
         var match = regex.Match(result);
@@ -180,7 +254,52 @@ public class WebInvestigatePlugin(
         }
         else
         {
-            throw new Exception($"Failed to trim markdown from the response: {result}.");
+            throw new Exception($"Failed to format markdown from the request '{rawQuestion}'. response: '{result}'.");
+        }
+    }
+
+    private async Task<string[]> GetInitialSearchEntries(string rawQuestion, IUnderlyingService service, string model, CancellationToken cancellationToken)
+    {
+        const string getSearchEntityPrompt =
+            """
+            现在我正在调查问题
+
+            ```markdown
+            {0}
+            ```
+
+            我计划先使用搜索引擎搜索一些背景。可是，我并不知道我应该搜索什么。现在你需要扮演一位搜索引擎的使用专家，请指导我填写一些适合搜索引擎用于搜索的词条。
+
+            使用搜索引擎有一些最佳实践，例如你要注意使用文字精准的描述前面的上下文，而不是搜索 '那里' '当时' '当地' 这种搜索引擎无法理解的上下文，注意合理的分词而不是搜索句子。
+
+            不要包含解释性文字。
+
+            现在，请输出我们需要在搜索引擎的搜索框里填的搜索内容吧！你输出的格式必须使用 <search></search> 包围起来的内容。最多输出5个。给出1-4个为宜。
+
+            """;
+        var result = await service.AskFormattedText(
+            template: getSearchEntityPrompt,
+            content: rawQuestion,
+            model: model,
+            cancellationToken: cancellationToken);
+        var textToSearch = BadSearchWords
+            .Aggregate(result, (current, badWord) => current.Replace(badWord, " "))
+            .Trim();
+
+        var regex = new Regex(@"<search>(.*?)<\/search>", RegexOptions.Singleline);
+        var searchTerms = regex.Matches(textToSearch)
+            .Select(m => m.Groups[1].Value.Trim())
+            .ToArray();
+
+        if (searchTerms.Length == 0)
+        {
+            throw new Exception($"Failed to extract search terms from the request '{rawQuestion}'. response: '{result}'.");
+        }
+        else
+        {
+            logger.LogInformation("Search plugin needs to search: {Count} terms. First term: {FirstTerm}. We only take the first 5 terms.",
+                searchTerms.Length, searchTerms[0].SafeSubstring(30));
+            return searchTerms.Take(5).ToArray();
         }
     }
 }

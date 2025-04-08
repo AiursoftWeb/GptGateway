@@ -124,12 +124,12 @@ public class ProxyController(
                 logger.LogInformation("Using plugin: {Plugin} for request with {InputModel}", pluginService.PluginName, rawInput.Model);
             }
 
-            await pluginService.ProcessMessage(context, underlyingService);
+            await pluginService.ProcessMessage(context, underlyingService, cancellationToken: HttpContext.RequestAborted);
         }
 
         if (context.RawInput.Stream == true)
         {
-            var responseStream = await underlyingService.AskStream(context.ModifiedInput);
+            var responseStream = await underlyingService.AskStream(context.ModifiedInput, cancellationToken: HttpContext.RequestAborted);
 
             // Use the StreamTransformService to handle the transformation if needed
             await streamTransformService.CopyProxyHttpResponse(
@@ -142,7 +142,7 @@ public class ProxyController(
         }
         else
         {
-            var response = await underlyingService.AskModel(context.ModifiedInput);
+            var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: HttpContext.RequestAborted);
             return Ok(response);
         }
     }

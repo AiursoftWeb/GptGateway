@@ -7,5 +7,5 @@ public interface IPlugin
 {
     string PluginName { get; }
 
-    Task ProcessMessage(ConversationContext context, IUnderlyingService service);
+    Task ProcessMessage(ConversationContext context, IUnderlyingService service, CancellationToken cancellationToken);
 }

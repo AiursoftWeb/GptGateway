@@ -13,7 +13,7 @@ public class DeepSeekService(
 {
     public string Name => "DeepSeek";
 
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model)
+    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = true;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
@@ -22,10 +22,11 @@ public class DeepSeekService(
         return client.AskStream(
             model: model,
             completionApiUrl: endPoint,
-            token: options.Value.DeepSeek.Token);
+            token: options.Value.DeepSeek.Token,
+            cancellationToken: cancellationToken);
     }
 
-    public Task<CompletionData> AskModel(OpenAiModel model)
+    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = false;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
@@ -34,6 +35,7 @@ public class DeepSeekService(
         return client.AskModel(
             model: model,
             completionApiUrl: endPoint,
-            token: options.Value.DeepSeek.Token);
+            token: options.Value.DeepSeek.Token,
+            cancellationToken: cancellationToken);
     }
 }

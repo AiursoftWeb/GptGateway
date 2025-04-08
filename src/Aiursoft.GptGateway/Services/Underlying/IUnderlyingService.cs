@@ -5,20 +5,20 @@ namespace Aiursoft.GptGateway.Services.Underlying;
 public interface IUnderlyingService
 {
     public string Name { get; }
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model);
-    public Task<CompletionData> AskModel(OpenAiModel model);
+    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken);
+    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken);
 }
 
 public static class UnderlyingServiceExtensions
 {
     public static Task<string> AskFormattedText(this IUnderlyingService service, string template, string content,
-        string model)
+        string model, CancellationToken cancellationToken)
     {
         var question = string.Format(template, content);
-        return service.AskText(question, model);
+        return service.AskText(question, model, cancellationToken);
     }
 
-    public static async Task<string> AskText(this IUnderlyingService service, string question, string model)
+    public static async Task<string> AskText(this IUnderlyingService service, string question, string model, CancellationToken cancellationToken)
     {
         var request = new OpenAiModel
         {
@@ -32,7 +32,7 @@ public static class UnderlyingServiceExtensions
                 }
             ]
         };
-        var response = await service.AskModel(request);
+        var response = await service.AskModel(request, cancellationToken);
         if (response.Choices is { Count: > 0 })
         {
             return response.GetAnswerPart();

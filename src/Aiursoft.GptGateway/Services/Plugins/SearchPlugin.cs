@@ -14,9 +14,9 @@ public class SearchPlugin(
     : IPlugin
 {
     public string PluginName => "web-search";
-    public async Task ProcessMessage(ConversationContext context, IUnderlyingService service)
+    public async Task ProcessMessage(ConversationContext context, IUnderlyingService service, CancellationToken cancellationToken)
     {
-        var message = await GetPluginAppendedMessage(context, service);
+        var message = await GetPluginAppendedMessage(context, service, cancellationToken);
         context.ModifiedInput.Messages[^1] = new MessagesItem
         {
             Role = "user",
@@ -53,7 +53,7 @@ public class SearchPlugin(
     private const string AnswerPrompt =
         "你是一个旨在解决人类问题的人工智能。现在我正在调查一个问题。在调查之前，我简单搜索了 `{0}`。并得到了这样的搜索结果。\n\n\n{1}\n\n 这些结果或许有一些参考价值吧，也可能没有。就当是补充一些你的知识了。\n\n现在，问题是：\n\n```\n{2}\n```\n\n请解答。在给出答案时，如果可以，请在答案的最终附带使用 markdown 的链接格式 (也就是：[标题](URL) 的格式) 的引用部分来表达你引用的是哪条来源。";
 
-    private async Task<string> GetPluginAppendedMessage(ConversationContext context, IUnderlyingService service)
+    private async Task<string> GetPluginAppendedMessage(ConversationContext context, IUnderlyingService service, CancellationToken cancellationToken)
     {
         var requestModel = questionReformatService.Map(
             model: context.ModifiedInput,
@@ -61,7 +61,7 @@ public class SearchPlugin(
             take: 5,
             out var rawQuestion,
             mergeAsOne: true);
-        var textToSearchObject = await service.AskModel(requestModel);
+        var textToSearchObject = await service.AskModel(requestModel, cancellationToken);
         var textToSearch = textToSearchObject.GetAnswerPart()
             .Trim('\"')
             .Trim();
@@ -70,7 +70,7 @@ public class SearchPlugin(
 
         logger.LogInformation("Search plugin needs to search: {0}", textToSearch);
 
-        var searchResult = await retryEngine.RunWithRetry(_ => searchService.DoSearch(textToSearch));
+        var searchResult = await retryEngine.RunWithRetry(_ => searchService.DoSearch(textToSearch, 10, cancellationToken));
         var resultList = searchResult.WebPages?.Value
             .Select(t => $"""
                           ## {t.Name}

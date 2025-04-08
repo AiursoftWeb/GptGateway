@@ -12,7 +12,7 @@ public class OllamaService(
 {
     public string Name => "Ollama";
 
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model)
+    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = true;
         var endPoint = options.Value.Ollama.Instance.TrimEnd('/') + "/api/chat";
@@ -20,10 +20,11 @@ public class OllamaService(
         return client.AskStream(
             model: model,
             completionApiUrl: endPoint,
-            token: string.Empty);
+            token: string.Empty,
+            cancellationToken: cancellationToken);
     }
 
-    public Task<CompletionData> AskModel(OpenAiModel model)
+    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = false;
         var endPoint = options.Value.Ollama.Instance.TrimEnd('/') + "/api/chat";
@@ -31,6 +32,7 @@ public class OllamaService(
         return client.AskModel(
             model: model,
             completionApiUrl: endPoint,
-            token: string.Empty);
+            token: string.Empty,
+            cancellationToken: cancellationToken);
     }
 }

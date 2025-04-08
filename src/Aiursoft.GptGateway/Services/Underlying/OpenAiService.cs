@@ -13,7 +13,7 @@ public class OpenAiService(
 {
     public string Name => "OpenAI";
 
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model)
+    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = true;
         var endPoint = options.Value.OpenAI.InstanceUrl.TrimEnd('/') + "/v1/chat/completions";
@@ -22,10 +22,11 @@ public class OpenAiService(
         return client.AskStream(
             model: model,
             completionApiUrl: endPoint,
-            token: options.Value.OpenAI.Token);
+            token: options.Value.OpenAI.Token,
+            cancellationToken: cancellationToken);
     }
 
-    public Task<CompletionData> AskModel(OpenAiModel model)
+    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken)
     {
         model.Stream = false;
         var endPoint = options.Value.OpenAI.InstanceUrl.TrimEnd('/') + "/v1/chat/completions";
@@ -34,6 +35,7 @@ public class OpenAiService(
         return client.AskModel(
             model: model,
             completionApiUrl: endPoint,
-            token: options.Value.OpenAI.Token);
+            token: options.Value.OpenAI.Token,
+            cancellationToken: cancellationToken);
     }
 }
