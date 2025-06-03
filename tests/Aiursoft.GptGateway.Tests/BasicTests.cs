@@ -55,7 +55,7 @@ public class BasicTests
                 }
             ],
             Stream = true,
-            Model = "deepseek-r1:70b",
+            Model = "qwen3:32b",
             Temperature = 0.5,
             PresencePenalty = 0
         };
