@@ -108,7 +108,7 @@ public class WebInvestigatePlugin(
         var trimmedQuestion = rawQuestion;
         while (true)
         {
-            if (trimmedQuestion.Length < 450)
+            if (trimmedQuestion.Length < 300)
             {
                 logger.LogInformation(
                     "The question user asked {RawQuestion} is too short (Length {Length}), we will try to expand it.",
@@ -202,7 +202,7 @@ public class WebInvestigatePlugin(
 
             我只是给了你两个例子。现在，你可以开展你的工作了。你需要你自己标准化的展开问题，得到一系列的不依赖上下文的question。（你不需要回答问题）我们会把你输出的内容交给其他调查人员去调查。
 
-            请按照 <questions></questions> 的格式输出吧。至少 800 字。
+            请按照 <questions></questions> 的格式输出吧。输出5-15条即可。
             """;
         var result = await service.AskFormattedText(
             template: expandPrompt,
