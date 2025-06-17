@@ -69,6 +69,7 @@ public class ProxyController(
     }
 
     [HttpPost("chat")]
+    [HttpPost("/v1/chat/completions")]
     public async Task<IActionResult> Chat([FromBody] OpenAiModel rawInput)
     {
         var usingModel = string.IsNullOrWhiteSpace(rawInput.Model)
