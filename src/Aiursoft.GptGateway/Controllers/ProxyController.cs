@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 namespace Aiursoft.GptGateway.Controllers;
 
 [Route("/api")]
+[Route("/v1")]
 [Obsolete]
 public class ProxyController(
     StreamTransformService streamTransformService,
@@ -69,7 +70,7 @@ public class ProxyController(
     }
 
     [HttpPost("chat")]
-    [HttpPost("/v1/chat/completions")]
+    [HttpPost("chat/completions")]               // 相对路径 -> /api/chat/completions
     public async Task<IActionResult> Chat([FromBody] OpenAiModel rawInput)
     {
         var usingModel = string.IsNullOrWhiteSpace(rawInput.Model)
