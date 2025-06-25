@@ -61,6 +61,41 @@ public class ProxyController(
         });
     }
 
+    [HttpGet("ps")]
+    public IActionResult GetPs()
+    {
+        var firstModel = modelOptions
+            .Value
+            .SupportedModels
+            .Select(t => t.Name)
+            .Select(name => new ModelPs
+            {
+                Name = name,
+                Model = name,
+                Size = 4683075271,
+                Digest = GenerateHash(name),
+                Details = new ModelDetails
+                {
+                    ParentModel = string.Empty,
+                    Format = "gguf",
+                    Family = "qwen2",
+                    Families = [
+                        "qwen2"
+                    ],
+                    ParameterSize = "32.8B",
+                    QuantizationLevel = "Q4_K_M"
+                },
+                ExpiresAt = DateTime.UtcNow.AddYears(1),
+                SizeVram = 4683075271
+            })
+            .FirstOrDefault();
+
+        return Ok(new
+        {
+            models = firstModel == null ? Array.Empty<ModelPs>() : new[] { firstModel }
+        });
+    }
+
     private static string GenerateHash(string input)
     {
         using var sha256 = System.Security.Cryptography.SHA256.Create();

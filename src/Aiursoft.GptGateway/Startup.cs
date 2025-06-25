@@ -3,6 +3,7 @@ using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
 using Aiursoft.GptGateway.InMemory;
+using Aiursoft.GptGateway.Middlewares;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.MySql;
 using Aiursoft.GptGateway.Services;
@@ -76,6 +77,7 @@ public class Startup : IWebStartup
         app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseRequestLogging();
         app.MapDefaultControllerRoute();
     }
 }
