@@ -44,7 +44,7 @@ public class BasicTests
     [TestMethod]
     public async Task PostApi()
     {
-        var model = new OpenAiModel
+        var model = new OpenAiRequestModel
         {
             Messages =
             [

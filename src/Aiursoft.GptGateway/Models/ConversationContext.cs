@@ -8,9 +8,9 @@ public class ConversationContext
 
     public required HttpContext HttpContext { get; init; }
 
-    public required OpenAiModel ModifiedInput { get; init; }
+    public required OpenAiRequestModel ModifiedInput { get; init; }
 
-    public required OpenAiModel RawInput { get; init; }
+    public required OpenAiRequestModel RawInput { get; init; }
 
     public CompletionData? Output { get; set; }
 }

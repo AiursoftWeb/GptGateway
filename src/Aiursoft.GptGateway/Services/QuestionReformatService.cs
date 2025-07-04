@@ -5,13 +5,13 @@ namespace Aiursoft.GptGateway.Services;
 
 public class QuestionReformatService(ILogger<QuestionReformatService> logger)
 {
-    public string MergeAsString(OpenAiModel model, int take, out string lastRawQuestion)
+    public string MergeAsString(OpenAiRequestModel model, int take, out string lastRawQuestion)
     {
         var mapped = Map(model, "{0}", take, out lastRawQuestion, true);
         return mapped.Messages.First().Content!;
     }
 
-    public OpenAiModel Map(OpenAiModel model, string template, int take, out string lastRawQuestion, bool mergeAsOne = false)
+    public OpenAiRequestModel Map(OpenAiRequestModel model, string template, int take, out string lastRawQuestion, bool mergeAsOne = false)
     {
         logger.LogInformation("Formatting Question: {LastMessageContent}", model.Messages.LastOrDefault()?.Content!.SafeSubstring(80));
         var messagesQuery = model.Messages

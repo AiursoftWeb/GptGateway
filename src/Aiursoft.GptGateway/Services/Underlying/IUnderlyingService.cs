@@ -5,8 +5,9 @@ namespace Aiursoft.GptGateway.Services.Underlying;
 public interface IUnderlyingService
 {
     public string Name { get; }
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken);
-    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken);
+    public Task<HttpResponseMessage> AskStream(OpenAiRequestModel model, CancellationToken cancellationToken);
+    public Task<CompletionData> AskModel(OpenAiRequestModel model, CancellationToken cancellationToken);
+    public bool SupportOllamaTooling { get; }
 }
 
 public static class UnderlyingServiceExtensions
@@ -20,7 +21,7 @@ public static class UnderlyingServiceExtensions
 
     public static async Task<string> AskText(this IUnderlyingService service, string question, string model, CancellationToken cancellationToken)
     {
-        var request = new OpenAiModel
+        var request = new OpenAiRequestModel
         {
             Model = model,
             Messages =

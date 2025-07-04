@@ -106,7 +106,7 @@ public class ProxyController(
 
     [HttpPost("chat")]
     [HttpPost("chat/completions")]               // 相对路径 -> /api/chat/completions
-    public async Task<IActionResult> Chat([FromBody] OpenAiModel rawInput)
+    public async Task<IActionResult> Chat([FromBody] OllamaRequestModel rawInput)
     {
         var usingModel = string.IsNullOrWhiteSpace(rawInput.Model)
             ? modelOptions.Value.DefaultIncomingModel
@@ -143,7 +143,9 @@ public class ProxyController(
         {
             HttpContext = HttpContext,
             RawInput = rawInput,
-            ModifiedInput = rawInput.Clone(),
+            ModifiedInput = underlyingService.SupportOllamaTooling ?
+                rawInput.CloneAsOllamaRequestModel() :
+                rawInput.CloneAsOpenAiRequestModel(),
             Output = null
         };
         context.ModifiedInput.Model = modelConfig.UnderlyingModel;

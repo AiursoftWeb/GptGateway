@@ -13,7 +13,7 @@ public class OpenAiService(
 {
     public string Name => "OpenAI";
 
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken)
+    public Task<HttpResponseMessage> AskStream(OpenAiRequestModel model, CancellationToken cancellationToken)
     {
         model.Stream = true;
         var endPoint = options.Value.OpenAI.InstanceUrl.TrimEnd('/') + "/v1/chat/completions";
@@ -26,7 +26,7 @@ public class OpenAiService(
             cancellationToken: cancellationToken);
     }
 
-    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken)
+    public Task<CompletionData> AskModel(OpenAiRequestModel model, CancellationToken cancellationToken)
     {
         model.Stream = false;
         var endPoint = options.Value.OpenAI.InstanceUrl.TrimEnd('/') + "/v1/chat/completions";
@@ -38,4 +38,6 @@ public class OpenAiService(
             token: options.Value.OpenAI.Token,
             cancellationToken: cancellationToken);
     }
+
+    public bool SupportOllamaTooling => false;
 }

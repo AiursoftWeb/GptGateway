@@ -13,7 +13,7 @@ public class DeepSeekService(
 {
     public string Name => "DeepSeek";
 
-    public Task<HttpResponseMessage> AskStream(OpenAiModel model, CancellationToken cancellationToken)
+    public Task<HttpResponseMessage> AskStream(OpenAiRequestModel model, CancellationToken cancellationToken)
     {
         model.Stream = true;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
@@ -26,7 +26,7 @@ public class DeepSeekService(
             cancellationToken: cancellationToken);
     }
 
-    public Task<CompletionData> AskModel(OpenAiModel model, CancellationToken cancellationToken)
+    public Task<CompletionData> AskModel(OpenAiRequestModel model, CancellationToken cancellationToken)
     {
         model.Stream = false;
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
@@ -38,4 +38,6 @@ public class DeepSeekService(
             token: options.Value.DeepSeek.Token,
             cancellationToken: cancellationToken);
     }
+
+    public bool SupportOllamaTooling => false;
 }
