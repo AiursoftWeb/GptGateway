@@ -5,7 +5,6 @@ using Aiursoft.DbTools;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Entities;
 using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
 
 namespace Aiursoft.GptGateway.Tests;
@@ -55,7 +54,7 @@ public class BasicTests
                 }
             ],
             Stream = true,
-            Model = "qwen3:32b",
+            Model = "qwen3:30b-a3b-thinking-2507-q8_0",
             Temperature = 0.5,
             PresencePenalty = 0
         };

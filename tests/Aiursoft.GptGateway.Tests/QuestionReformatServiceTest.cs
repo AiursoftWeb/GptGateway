@@ -2,7 +2,6 @@
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
 
 namespace Aiursoft.GptGateway.Tests;
@@ -39,7 +38,7 @@ public class QuestionReformatServiceTest
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(70, score);
     }
-    
+
     [TestMethod]
     public void TestFalse()
     {
@@ -59,7 +58,7 @@ public class QuestionReformatServiceTest
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(0, score);
     }
-    
+
     [TestMethod]
     public void TestTrueAndFalse()
     {
@@ -79,7 +78,7 @@ public class QuestionReformatServiceTest
         var score = _service!.ConvertResponseToScore(mockResponse);
         Assert.AreEqual(40, score);
     }
-    
+
     [TestMethod]
     public void TestNoTrueAndFalse()
     {
