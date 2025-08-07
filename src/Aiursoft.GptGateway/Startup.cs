@@ -14,6 +14,8 @@ using Aiursoft.GptGateway.Services.PreRequest;
 using Aiursoft.GptGateway.Services.Underlying;
 using Aiursoft.GptGateway.Sqlite;
 using Aiursoft.WebTools.Abstractions.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Aiursoft.GptGateway;
 
@@ -69,6 +71,12 @@ public class Startup : IWebStartup
 
         services
             .AddControllers()
+            .AddNewtonsoftJson(
+                options =>
+                {
+                    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                })
             .AddApplicationPart(typeof(Startup).Assembly);
     }
 
