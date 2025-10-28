@@ -1,7 +1,7 @@
-aiur() { arg="$( cut -d ' ' -f 2- <<< "$@" )" && curl -sL https://gitlab.aiursoft.cn/aiursoft/aiurscript/-/raw/master/$1.sh | sudo bash -s $arg; }
+aiur() { arg="$( cut -d ' ' -f 2- <<< "$@" )" && curl -sL https://gitlab.aiursoft.com/aiursoft/aiurscript/-/raw/master/$1.sh | sudo bash -s $arg; }
 
 app_name="gptgateway"
-repo_path="https://gitlab.aiursoft.cn/aiursoft/gptgateway"
+repo_path="https://gitlab.aiursoft.com/aiursoft/gptgateway"
 proj_path="src/Aiursoft.GptGateway/Aiursoft.GptGateway.csproj"
 fted_path="src/Aiursoft.GptGateway.Frontend"
 
