@@ -40,7 +40,7 @@
   </div>
 
   <el-space class="references">
-    <el-link href="https://www.aiursoft.cn/" target="_blank">Home</el-link>
+    <el-link href="https://www.aiursoft.com/" target="_blank">Home</el-link>
     <el-link href="https://gitlab.aiursoft.com/aiursoft/gptgateway" target="_blank">Source</el-link>
     <el-link href="https://openweb.aiursoft.com/" target="_blank">Full features</el-link>
     <el-tooltip :content="version" placement="top">
