@@ -3,7 +3,7 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://gitlab.aiursoft.com/aiursoft/GptGateway/-/blob/master/LICENSE)
 [![Pipeline stat](https://gitlab.aiursoft.com/aiursoft/GptGateway/badges/master/pipeline.svg)](https://gitlab.aiursoft.com/aiursoft/GptGateway/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.com/aiursoft/GptGateway/badges/master/coverage.svg)](https://gitlab.aiursoft.com/aiursoft/GptGateway/-/pipelines)
-[![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.com/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.com/aiursoft/GptGateway/-/commits/master?ref_type=heads)
+[![ManHours](https://manhours.aiursoft.com/r/gitlab.aiursoft.com/aiursoft/GptGateway.svg)](https://gitlab.aiursoft.com/aiursoft/GptGateway/-/commits/master?ref_type=heads)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fopenweb.aiursoft.com%2F)](https://openweb.aiursoft.com/)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/gptgateway.svg)](https://hub.docker.com/r/aiursoft/gptgateway)
 
