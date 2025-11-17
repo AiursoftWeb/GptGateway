@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Aiursoft.GptGateway.Entities</AssemblyName>
     <RootNamespace>Aiursoft.GptGateway.Entities</RootNamespace>
     <IsTestProject>false</IsTestProject>
@@ -10,6 +10,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools" Version="9.0.20" />
+    <PackageReference Include="Aiursoft.DbTools" Version="10.0.1" />
   </ItemGroup>
 </Project>

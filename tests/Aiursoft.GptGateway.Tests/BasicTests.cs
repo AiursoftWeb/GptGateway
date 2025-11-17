@@ -7,6 +7,8 @@ using Aiursoft.GptGateway.Entities;
 using Microsoft.Extensions.Hosting;
 using static Aiursoft.WebTools.Extends;
 
+[assembly:DoNotParallelize]
+
 namespace Aiursoft.GptGateway.Tests;
 
 [TestClass]

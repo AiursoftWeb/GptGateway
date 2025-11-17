@@ -52,13 +52,24 @@ public class StreamTransformService(ILogger<StreamTransformService> logger)
 
     private async Task TransformOpenAiToOllamaStream(Stream input, Stream output, string targetModel, CancellationToken cancellationToken)
     {
-        using var reader = new StreamReader(input, Encoding.UTF8);
+        // Use leaveOpen: true if you don't want the StreamReader to dispose the input stream
+        using var reader = new StreamReader(input, Encoding.UTF8, leaveOpen: true);
 
         var finishReason = string.Empty;
 
-        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        // --- FIX for CA2024 ---
+        // We declare 'line' outside the loop.
+        string? line;
+
+        // The loop condition is changed from checking 'reader.EndOfStream' (which can block)
+        // to awaiting ReadLineAsync() and checking its result for 'null'.
+        // This is the correct asynchronous pattern.
+        // The CancellationToken is passed to ReadLineAsync, which will throw
+        // an OperationCanceledException if cancellation is requested during the await.
+        while ((line = await reader.ReadLineAsync(cancellationToken)) is not null)
         {
-            var line = await reader.ReadLineAsync(cancellationToken);
+            // The original 'var line = ...' is no longer needed here.
+
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             // Remove "data: " prefix if it exists (SSE format)
@@ -87,13 +98,17 @@ public class StreamTransformService(ILogger<StreamTransformService> logger)
                 }
 
                 // Check for finish reason
-                finishReason = choice.FinishReason;
+                if (choice.FinishReason != null)
+                {
+                    finishReason = choice.FinishReason;
+                }
             }
             catch (JsonException ex)
             {
                 logger.LogError(ex, "Failed to parse OpenAI chunk: {Line}", line);
             }
         }
+        // --- End of FIX ---
 
         // Write final chunk
         await WriteOllamaChunk(output, targetModel, "", true, cancellationToken, finishReason);
