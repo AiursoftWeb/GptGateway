@@ -6,7 +6,6 @@ using Aiursoft.DbTools;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Entities;
 using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Aiursoft.WebTools.Extends;
 
 namespace Aiursoft.GptGateway.Tests;
