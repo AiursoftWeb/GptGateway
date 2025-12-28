@@ -39,6 +39,7 @@ public class Startup : IWebStartup
         services.Configure<UnderlyingsOptions>(configuration.GetSection("Underlyings"));
         services.Configure<GptModelOptions>(options =>
         {
+            options.ApiKey = configuration["ApiKey"];
             options.DefaultIncomingModel = configuration["DefaultIncomingModel"]!;
             options.SupportedModels = configuration.GetSection("SupportedModels")
                 .Get<List<SupportedModel>>()!;
@@ -86,6 +87,7 @@ public class Startup : IWebStartup
         app.UseStaticFiles();
         app.UseRouting();
         app.UseRequestLogging();
+        app.UseApiKeyValidation();
         app.MapDefaultControllerRoute();
     }
 }
