@@ -10,8 +10,12 @@
       </el-icon>
       <div v-else v-html="renderMarkdown(message.content)"></div>
     </div>
-    <el-button class="reset-button" type="danger" @click="reset" icon="delete" plain circle></el-button>
-    <el-button class="settings-button" type="primary" @click="showSettings = true" icon="Setting" plain circle></el-button>
+    <div v-if="dialogue.messages.length === 0" style="margin: auto; color: #999;">
+      <p>欢迎使用 GptGateway</p>
+      <p v-if="!apiKey">请先 <el-link type="primary" @click="showSettings = true">设置 API Key</el-link> 以开始聊天</p>
+    </div>
+    <el-button class="reset-button" type="danger" @click="reset" :icon="Delete" plain circle></el-button>
+    <el-button class="settings-button" type="primary" @click="showSettings = true" :icon="Setting" plain circle></el-button>
   </div>
 
   <el-dialog v-model="showSettings" title="设置" width="400px">
@@ -67,7 +71,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue';
-import { Search, Loading } from '@element-plus/icons-vue';
+import { Search, Loading, Setting, Delete } from '@element-plus/icons-vue';
 import { versionData } from './version.js';
 import { auto as followSystemColorScheme } from 'darkreader';
 // 引入 markdown-it 进行 Markdown 渲染
