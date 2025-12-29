@@ -11,7 +11,22 @@
       <div v-else v-html="renderMarkdown(message.content)"></div>
     </div>
     <el-button class="reset-button" type="danger" @click="reset" icon="delete" plain circle></el-button>
+    <el-button class="settings-button" type="primary" @click="showSettings = true" icon="Setting" plain circle></el-button>
   </div>
+
+  <el-dialog v-model="showSettings" title="设置" width="400px">
+    <el-form label-position="top">
+      <el-form-item label="API Key">
+        <el-input v-model="apiKey" placeholder="请输入 API Key" show-password />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="showSettings = false">取消</el-button>
+        <el-button type="primary" @click="saveSettings">保存</el-button>
+      </span>
+    </template>
+  </el-dialog>
 
   <div class="answer-container">
     <div class="area-input">
@@ -73,6 +88,8 @@ const renderMarkdown = (text) => {
 const version = ref("");
 const loading = ref(false);
 const scrollContainer = ref(null);
+const showSettings = ref(false);
+const apiKey = ref(localStorage.getItem('gpt_gateway_api_key') || '');
 
 const formdata = reactive({
   question: "",
@@ -90,6 +107,11 @@ const onSubmit = () => {
 const reset = () => {
   formdata.question = "";
   dialogue.messages = [];
+};
+
+const saveSettings = () => {
+  localStorage.setItem('gpt_gateway_api_key', apiKey.value);
+  showSettings.value = false;
 };
 
 const getResult = async () => {
@@ -119,11 +141,16 @@ const getResult = async () => {
 
   loading.value = true;
   try {
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (apiKey.value) {
+      headers["Authorization"] = `Bearer ${apiKey.value}`;
+    }
+
     const response = await fetch('/api/chat/', {
       method: 'POST',
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: headers,
       body: JSON.stringify({
         messages: conversation,
 
@@ -131,6 +158,13 @@ const getResult = async () => {
         stream: false
       })
     });
+    
+    if (response.status === 401) {
+      pendingMessage.content = "未授权：请在设置中检查您的 API Key。";
+      showSettings.value = true;
+      return;
+    }
+
     const data = await response.json();
     // API 返回的数据中
     pendingMessage.content = data.choices[0].message.content;
@@ -200,6 +234,12 @@ body {
   position: absolute;
   right: 0.5rem;
   top: 0.5rem;
+}
+
+.settings-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 3rem;
 }
 
 .message {
