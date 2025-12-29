@@ -1,6 +1,6 @@
 {
   "name": "gptgateway-front-end",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "node createVersionFile.js && vue-cli-service serve",

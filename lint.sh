@@ -16,7 +16,7 @@ fi
 echo "Checking for JetBrains ReSharper Global Tools..."
 if ! command -v jb &> /dev/null; then
     echo "jb not found, installing..."
-    dotnet tool install JetBrains.ReSharper.GlobalTools --global --add-source https://nuget.ai.com/v3/index.json --configfile ./nuget.config -v d
+    dotnet tool install JetBrains.ReSharper.GlobalTools --global --add-source https://nuget.aiursoft.com/v3/index.json --configfile ./nuget.config -v d
 else
     echo "jb is already installed."
 fi
@@ -51,7 +51,7 @@ if grep -q 'WARNING' analyze_output.xml; then
     # Filter issues to only show those with Severity="WARNING" or "ERROR"
     # Identify IssueTypes that are Warnings or Errors
     # We use grep and cut to extract the IDs purely from lines with Severity="WARNING" or "ERROR"
-    WARNING_IDS=$(grep -E 'Severity="(WARNING|ERROR)"' analyze_output.xml | grep -o 'Id="[^" ]*"' | cut -d'"' -f2)
+    WARNING_IDS=$(grep -E 'Severity="(WARNING|ERROR)"' analyze_output.xml | grep -o 'Id="[^"]*"' | cut -d'"' -f2)
 
     # Check if we found any IDs (to avoid syntax errors in loop if empty, though unlikely if grep passed)
     if [ ! -z "$WARNING_IDS" ]; then
@@ -60,17 +60,17 @@ if grep -q 'WARNING' analyze_output.xml; then
             # We assume one issue per line
             grep "TypeId=\"$ID\"" analyze_output.xml | while read -r line; do
                 # Extract attributes using grep -o (lazy parsing)
-                FILE=$(echo "$line" | grep -o 'File="[^" ]*"' | cut -d'"' -f2 | sed 's/\\/\//g')
-                LINE=$(echo "$line" | grep -o 'Line="[^" ]*"' | cut -d'"' -f2)
+                FILE=$(echo "$line" | grep -o 'File="[^"]*"' | cut -d'"' -f2 | sed 's/\\/\//g')
+                LINE=$(echo "$line" | grep -o 'Line="[^"]*"' | cut -d'"' -f2)
                 if [ -z "$LINE" ]; then
-                     OFFSET=$(echo "$line" | grep -o 'Offset="[^" ]*"' | cut -d'"' -f2)
+                     OFFSET=$(echo "$line" | grep -o 'Offset="[^"]*"' | cut -d'"' -f2)
                      if [ ! -z "$OFFSET" ]; then
                           LINE="Offset $OFFSET"
                      else
                           LINE="Unknown"
                      fi
                 fi
-                MSG=$(echo "$line" | grep -o 'Message="[^" ]*"' | cut -d'"' -f2)
+                MSG=$(echo "$line" | grep -o 'Message="[^"]*"' | cut -d'"' -f2)
 
                 echo "File: $FILE | Line: $LINE | Reason: $MSG"
             done
