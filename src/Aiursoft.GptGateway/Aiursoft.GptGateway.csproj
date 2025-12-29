@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>0.7.1</Version>
     <Description>GptGateway seamlessly masquerades as an Ollama server, unifying diverse API interactions for streamlined AI chat solutions.</Description>
   </PropertyGroup>
   <ItemGroup>
