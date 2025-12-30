@@ -2,7 +2,6 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>0.7.1</Version>
     <AssemblyName>Aiursoft.GptGateway.MySql</AssemblyName>
     <RootNamespace>Aiursoft.GptGateway.MySql</RootNamespace>
     <IsTestProject>false</IsTestProject>
