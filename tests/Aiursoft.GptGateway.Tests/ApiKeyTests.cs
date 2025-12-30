@@ -49,7 +49,7 @@ public class ApiKeyTests
         var model = new OpenAiRequestModel
         {
             Messages = [new() { Role = "user", Content = "hi" }],
-            Model = "qwen3:30b-a3b-thinking-2507-q8_0"
+            Model = "qwen3:32b-q8_0"
         };
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/api/chat")
         {
@@ -66,7 +66,7 @@ public class ApiKeyTests
         var model = new OpenAiRequestModel
         {
             Messages = [new() { Role = "user", Content = "hi" }],
-            Model = "qwen3:30b-a3b-thinking-2507-q8_0"
+            Model = "qwen3:32b-q8_0"
         };
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/api/chat")
         {
@@ -83,7 +83,7 @@ public class ApiKeyTests
         var model = new OpenAiRequestModel
         {
             Messages = [new() { Role = "user", Content = "hi" }],
-            Model = "qwen3:30b-a3b-thinking-2507-q8_0"
+            Model = "qwen3:32b-q8_0"
         };
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_endpointUrl}/api/chat")
         {

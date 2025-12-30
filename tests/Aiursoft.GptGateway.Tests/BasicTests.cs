@@ -56,7 +56,7 @@ public class BasicTests
                 }
             ],
             Stream = true,
-            Model = "qwen3:30b-a3b-thinking-2507-q8_0",
+            Model = "qwen3:32b-q8_0",
             Temperature = 0.5,
             PresencePenalty = 0
         };
