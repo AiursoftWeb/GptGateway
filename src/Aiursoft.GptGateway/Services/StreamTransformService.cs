@@ -7,7 +7,7 @@ namespace Aiursoft.GptGateway.Services;
 
 public class StreamTransformService(ILogger<StreamTransformService> logger)
 {
-    public async Task CopyProxyHttpResponse(HttpContext context, HttpResponseMessage responseMessage, string sourceFormat, string targetModel, CancellationToken cancellationToken)
+    public async Task CopyProxyHttpResponse(HttpContext context, HttpResponseMessage responseMessage, string sourceFormat, string targetModel)
     {
         var response = context.Response;
         response.StatusCode = (int)responseMessage.StatusCode;
@@ -35,18 +35,18 @@ public class StreamTransformService(ILogger<StreamTransformService> logger)
         // Remove transfer-encoding as we'll handle the streaming ourselves
         response.Headers.Remove("transfer-encoding");
 
-        await using var responseStream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
+        await using var responseStream = await responseMessage.Content.ReadAsStreamAsync();
 
         if ((sourceFormat == "OpenAI" || sourceFormat == "DeepSeek") && !string.IsNullOrEmpty(targetModel))
         {
             // Transform OpenAI format to Ollama format
-            await TransformOpenAiToOllamaStream(responseStream, response.Body, targetModel, cancellationToken);
+            await TransformOpenAiToOllamaStream(responseStream, response.Body, targetModel, context.RequestAborted);
         }
         else
         {
             // Direct copy for Ollama or non-streaming responses
             const int streamCopyBufferSize = 81920;
-            await responseStream.CopyToAsync(response.Body, streamCopyBufferSize, cancellationToken);
+            await responseStream.CopyToAsync(response.Body, streamCopyBufferSize, context.RequestAborted);
         }
     }
 
