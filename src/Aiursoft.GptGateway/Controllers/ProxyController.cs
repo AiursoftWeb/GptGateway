@@ -24,7 +24,7 @@ public class ProxyController(
     {
         return Ok(new
         {
-            version = "0.7.0"
+            version = "0.7.1"
         });
     }
 
@@ -149,40 +149,60 @@ public class ProxyController(
             Output = null
         };
         context.ModifiedInput.Model = modelConfig.UnderlyingModel;
-        foreach (var plugin in modelConfig.Plugins)
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(HttpContext.RequestAborted);
+        cts.CancelAfter(TimeSpan.FromMinutes(modelOptions.Value.TimeoutMinutes));
+
+        try
         {
-            var pluginService = plugins
-                .FirstOrDefault(p => p.PluginName == plugin);
-            if (pluginService is null)
+            foreach (var plugin in modelConfig.Plugins)
             {
-                logger.LogWarning("Plugin not found for request with {InputModel}", rawInput.Model);
-                return BadRequest($"Plugin with name {plugin} not found.");
+                var pluginService = plugins
+                    .FirstOrDefault(p => p.PluginName == plugin);
+                if (pluginService is null)
+                {
+                    logger.LogWarning("Plugin not found for request with {InputModel}", rawInput.Model);
+                    return BadRequest($"Plugin with name {plugin} not found.");
+                }
+                else
+                {
+                    logger.LogInformation("Using plugin: {Plugin} for request with {InputModel}", pluginService.PluginName, rawInput.Model);
+                }
+
+                await pluginService.ProcessMessage(context, underlyingService, cancellationToken: cts.Token);
+            }
+
+            if (context.RawInput.Stream == true)
+            {
+                var responseStream = await underlyingService.AskStream(context.ModifiedInput, cancellationToken: cts.Token);
+
+                // Use the StreamTransformService to handle the transformation if needed
+                await streamTransformService.CopyProxyHttpResponse(
+                    HttpContext,
+                    responseStream,
+                    underlyingService.Name, // Pass service name to identify source format
+                    modelConfig.Name,
+                    cts.Token); // Pass target model name for Ollama format
+
+                return new EmptyResult();
             }
             else
             {
-                logger.LogInformation("Using plugin: {Plugin} for request with {InputModel}", pluginService.PluginName, rawInput.Model);
+                var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: cts.Token);
+                return Ok(response);
+            }
+        }
+        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested && !HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            logger.LogWarning("Request timed out after {Timeout} minutes. (Target: {Model}, Provider: {Provider})", 
+                modelOptions.Value.TimeoutMinutes, modelConfig.Name, underlyingService.Name);
+            
+            if (context.RawInput.Stream == true)
+            {
+                return new EmptyResult();
             }
 
-            await pluginService.ProcessMessage(context, underlyingService, cancellationToken: HttpContext.RequestAborted);
-        }
-
-        if (context.RawInput.Stream == true)
-        {
-            var responseStream = await underlyingService.AskStream(context.ModifiedInput, cancellationToken: HttpContext.RequestAborted);
-
-            // Use the StreamTransformService to handle the transformation if needed
-            await streamTransformService.CopyProxyHttpResponse(
-                HttpContext,
-                responseStream,
-                underlyingService.Name,  // Pass service name to identify source format
-                modelConfig.Name);       // Pass target model name for Ollama format
-
-            return new EmptyResult();
-        }
-        else
-        {
-            var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: HttpContext.RequestAborted);
-            return Ok(response);
+            return StatusCode(StatusCodes.Status504GatewayTimeout, "Request timed out.");
         }
     }
 }
