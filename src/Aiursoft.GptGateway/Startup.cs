@@ -43,6 +43,7 @@ public class Startup : IWebStartup
             options.DefaultIncomingModel = configuration["DefaultIncomingModel"]!;
             options.SupportedModels = configuration.GetSection("SupportedModels")
                 .Get<List<SupportedModel>>()!;
+            options.TimeoutMinutes = configuration.GetValue("TimeoutMinutes", 10);
         });
 
         services.AddTaskCanon();
