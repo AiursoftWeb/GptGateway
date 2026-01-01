@@ -13,22 +13,22 @@ namespace Aiursoft.GptGateway.Tests;
 [TestClass]
 public class ApiKeyTests
 {
-    private readonly string _endpointUrl;
-    private readonly int _port;
+    private string _endpointUrl = string.Empty;
+    private int _port;
     private readonly HttpClient _http;
     private IHost? _server;
     private const string TestApiKey = "test-api-key";
 
     public ApiKeyTests()
     {
-        _port = Network.GetAvailablePort();
-        _endpointUrl = $"http://localhost:{_port}";
         _http = new HttpClient();
     }
 
     [TestInitialize]
     public async Task CreateServer()
     {
+        _port = Network.GetAvailablePort();
+        _endpointUrl = $"http://localhost:{_port}";
         // Pass ApiKey via command line arguments
         _server = await AppAsync<TestStartup>(["--ApiKey", TestApiKey], port: _port);
         await _server.UpdateDbAsync<GptGatewayDbContext>();
