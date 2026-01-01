@@ -14,21 +14,21 @@ namespace Aiursoft.GptGateway.Tests;
 [TestClass]
 public class BasicTests
 {
-    private readonly string _endpointUrl;
-    private readonly int _port;
+    private string _endpointUrl = string.Empty;
+    private int _port;
     private readonly HttpClient _http;
     private IHost? _server;
 
     public BasicTests()
     {
-        _port = Network.GetAvailablePort();
-        _endpointUrl = $"http://localhost:{_port}";
         _http = new HttpClient();
     }
 
     [TestInitialize]
     public async Task CreateServer()
     {
+        _port = Network.GetAvailablePort();
+        _endpointUrl = $"http://localhost:{_port}";
         _server = await AppAsync<TestStartup>([], port: _port);
         await _server.UpdateDbAsync<GptGatewayDbContext>();
         await _server.StartAsync();
@@ -64,6 +64,7 @@ public class BasicTests
         {
             Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json")
         };
+        request.Headers.Add("Authorization", "Bearer test-api-key");
         var response = await _http.SendAsync(request);
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }

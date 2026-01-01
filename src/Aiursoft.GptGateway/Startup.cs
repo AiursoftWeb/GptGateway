@@ -37,14 +37,7 @@ public class Startup : IWebStartup
 
         // Configuration
         services.Configure<UnderlyingsOptions>(configuration.GetSection("Underlyings"));
-        services.Configure<GptModelOptions>(options =>
-        {
-            options.ApiKey = configuration["ApiKey"];
-            options.DefaultIncomingModel = configuration["DefaultIncomingModel"]!;
-            options.SupportedModels = configuration.GetSection("SupportedModels")
-                .Get<List<SupportedModel>>()!;
-            options.TimeoutMinutes = configuration.GetValue("TimeoutMinutes", 10);
-        });
+        services.Configure<GptModelOptions>(configuration);
 
         services.AddTaskCanon();
         services.AddHttpClient();
