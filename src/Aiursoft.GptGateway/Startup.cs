@@ -4,6 +4,7 @@ using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
 using Aiursoft.GptGateway.InMemory;
 using Aiursoft.GptGateway.Middlewares;
+using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.MySql;
 using Aiursoft.GptGateway.Services;
@@ -38,11 +39,14 @@ public class Startup : IWebStartup
         // Configuration
         services.Configure<UnderlyingsOptions>(configuration.GetSection("Underlyings"));
         services.Configure<GptModelOptions>(configuration);
+        services.Configure<ClickhouseOptions>(configuration.GetSection("Clickhouse"));
 
         services.AddTaskCanon();
         services.AddHttpClient();
         services.AddGptClient();
         services.AddScoped<StreamTransformService>();
+        services.AddSingleton<ClickhouseService>();
+        services.AddScoped<RequestLogContext>();
         services.AddTransient<QuestionReformatService>();
         services.AddTransient<SearchService>();
 
