@@ -1,3 +1,5 @@
+using Aiursoft.GptGateway.Entities;
+
 namespace Aiursoft.GptGateway.Models;
 
 public class RequestLogContext

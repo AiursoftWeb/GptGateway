@@ -1,6 +1,6 @@
 using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Models;
-using Aiursoft.GptGateway.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text;
@@ -69,9 +69,9 @@ public class ClickhouseTests
         // we might need to check if the ClickhouseService was called if we mock it.
         // But in this test, we just want to ensure the code doesn't crash and the flow works.
         
-        // We can verify that ClickhouseService is registered.
+        // We can verify that ClickhouseDbContext is registered.
         using var scope = _server!.Services.CreateScope();
-        var clickhouseService = scope.ServiceProvider.GetService<ClickhouseService>();
-        Assert.IsNotNull(clickhouseService);
+        var clickhouseDbContext = scope.ServiceProvider.GetService<ClickhouseDbContext>();
+        Assert.IsNotNull(clickhouseDbContext);
     }
 }

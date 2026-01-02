@@ -1,0 +1,29 @@
+We are working on escroting the merge request #158: Fix for issue #5: 全新功能：支持Clickhouse
+
+Human reviewers have provided feedback on this merge request. Your task is to analyze the discussions below and make the necessary code changes to address the feedback.
+
+=== FEEDBACK ===
+anduin said: 模仿 EF 的风格，弄个ClickhouseDbContext。里面你来设计函数，像增删改查一个List一样操作Clickhouse。弄的OO一点。教科书级别的代码示例级别的。
+
+同样，UT也是。要非常学院派。类多不怕，混入其中才可怕。
+
+同样的，Controller里插入clickhouse应该像插入EF一样优雅。
+
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var clickhouseService = scope.ServiceProvider.GetRequiredService<ClickhouseService>();
+            await clickhouseService.Init();
+        }
+
+这里可以单独腾一个类，让Program.cs一行完成初始化。
+
+总之就是更加学院派。 (1/2/2026 5:54:42 PM)
+
+=== END OF FEEDBACK ===
+
+Please read git log, analyze the feedback, identify the requested changes, and make the necessary code modifications to satisfy the reviewers.
+
+Please also bump the version of the updated nuget package projects if necessary.
+
+Don't forget to run git commit after making changes.

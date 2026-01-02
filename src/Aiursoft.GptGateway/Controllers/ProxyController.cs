@@ -1,4 +1,5 @@
 using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.Services;
@@ -20,14 +21,14 @@ public class ProxyController(
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions,
     RequestLogContext logContext,
-    ClickhouseService clickhouseService) : ControllerBase
+    ClickhouseDbContext clickhouseDbContext) : ControllerBase
 {
     [HttpGet("version")]
     public IActionResult GetVersion()
     {
         return Ok(new
         {
-            version = "0.8.0"
+            version = "0.8.1"
         });
     }
 
@@ -194,7 +195,8 @@ public class ProxyController(
                     cts.Token); // Pass target model name for Ollama format
 
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-                await clickhouseService.Log(logContext.Log);
+                clickhouseDbContext.RequestLogs.Add(logContext.Log);
+                await clickhouseDbContext.SaveChangesAsync();
                 return new EmptyResult();
             }
             else
@@ -206,7 +208,8 @@ public class ProxyController(
                 // For now, GptClient might not support it, so it will be empty.
                 
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-                await clickhouseService.Log(logContext.Log);
+                clickhouseDbContext.RequestLogs.Add(logContext.Log);
+                await clickhouseDbContext.SaveChangesAsync();
                 return Ok(response);
             }
         }
@@ -217,7 +220,8 @@ public class ProxyController(
             
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-            await clickhouseService.Log(logContext.Log);
+            clickhouseDbContext.RequestLogs.Add(logContext.Log);
+            await clickhouseDbContext.SaveChangesAsync();
 
             if (context.RawInput.Stream == true)
             {
@@ -230,7 +234,8 @@ public class ProxyController(
         {
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-            await clickhouseService.Log(logContext.Log);
+            clickhouseDbContext.RequestLogs.Add(logContext.Log);
+            await clickhouseDbContext.SaveChangesAsync();
             throw;
         }
     }

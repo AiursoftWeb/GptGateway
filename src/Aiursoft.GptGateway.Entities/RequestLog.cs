@@ -1,4 +1,4 @@
-namespace Aiursoft.GptGateway.Models;
+namespace Aiursoft.GptGateway.Entities;
 
 public class RequestLog
 {

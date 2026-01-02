@@ -14,6 +14,7 @@ using Aiursoft.GptGateway.Services.PostRequest;
 using Aiursoft.GptGateway.Services.PreRequest;
 using Aiursoft.GptGateway.Services.Underlying;
 using Aiursoft.GptGateway.Sqlite;
+using Aiursoft.GptGateway.Extensions;
 using Aiursoft.WebTools.Abstractions.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -45,7 +46,7 @@ public class Startup : IWebStartup
         services.AddHttpClient();
         services.AddGptClient();
         services.AddScoped<StreamTransformService>();
-        services.AddSingleton<ClickhouseService>();
+        services.AddClickhouse();
         services.AddScoped<RequestLogContext>();
         services.AddTransient<QuestionReformatService>();
         services.AddTransient<SearchService>();
