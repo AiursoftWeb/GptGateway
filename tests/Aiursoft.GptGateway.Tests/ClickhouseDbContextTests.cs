@@ -18,7 +18,7 @@ public class ClickhouseDbContextTests
         var log = new RequestLog { IP = "127.0.0.1" };
         set.Add(log);
         
-        Assert.AreEqual(1, set._local.Count);
+        Assert.HasCount(1, set._local);
         Assert.AreEqual("127.0.0.1", set._local[0].IP);
     }
 
@@ -46,6 +46,6 @@ public class ClickhouseDbContextTests
         
         // In my current implementation, it clears AFTER WriteToServerAsync. 
         // If it throws before that, it won't clear. This is standard EF behavior too.
-        Assert.AreEqual(1, set._local.Count);
+        Assert.HasCount(1, set._local);
     }
 }

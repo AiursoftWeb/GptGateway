@@ -1,6 +1,6 @@
+using Aiursoft.CSTools.Tools;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Data;
-using Aiursoft.GptGateway.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text;
@@ -25,7 +25,7 @@ public class ClickhouseTests
     [TestInitialize]
     public async Task CreateServer()
     {
-        _port = Aiursoft.CSTools.Tools.Network.GetAvailablePort();
+        _port = Network.GetAvailablePort();
         _endpointUrl = $"http://localhost:{_port}";
         _server = await AppAsync<TestStartup>([], port: _port);
         await _server.StartAsync();

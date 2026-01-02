@@ -21,7 +21,7 @@ public class ClickhouseDbContext : IAsyncDisposable, IDisposable
             log.ConversationMessageCount,
             log.LastQuestion,
             log.Model,
-            log.Success ? (byte)1 : (byte)0,
+            log.Success ? 1 : 0,
             log.Duration,
             log.Thinking,
             log.Answer,
