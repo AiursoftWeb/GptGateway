@@ -1,5 +1,6 @@
 using Aiursoft.DbTools;
 using Aiursoft.GptGateway.Entities;
+using Aiursoft.GptGateway.Extensions;
 using Aiursoft.WebTools;
 
 namespace Aiursoft.GptGateway;
@@ -10,6 +11,7 @@ public abstract class Program
     {
         var app = await Extends.AppAsync<Startup>(args);
         await app.UpdateDbAsync<GptGatewayDbContext>();
+        await app.InitClickhouseAsync();
         await app.RunAsync();
     }
 }

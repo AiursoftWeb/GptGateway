@@ -1,4 +1,5 @@
 using Aiursoft.GptClient.Abstractions;
+using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.Services;
@@ -6,6 +7,7 @@ using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Underlying;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace Aiursoft.GptGateway.Controllers;
 
@@ -17,14 +19,16 @@ public class ProxyController(
     ILogger<ProxyController> logger,
     IEnumerable<IPlugin> plugins,
     IEnumerable<IUnderlyingService> underlyingServices,
-    IOptions<GptModelOptions> modelOptions) : ControllerBase
+    IOptions<GptModelOptions> modelOptions,
+    RequestLogContext logContext,
+    ClickhouseDbContext clickhouseDbContext) : ControllerBase
 {
     [HttpGet("version")]
     public IActionResult GetVersion()
     {
         return Ok(new
         {
-            version = "0.7.1"
+            version = "0.8.1"
         });
     }
 
@@ -108,6 +112,11 @@ public class ProxyController(
     [HttpPost("chat/completions")]               // 相对路径 -> /api/chat/completions
     public async Task<IActionResult> Chat([FromBody] OllamaRequestModel rawInput)
     {
+        var sw = Stopwatch.StartNew();
+        logContext.Log.IP = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        logContext.Log.ConversationMessageCount = rawInput.Messages.Count;
+        logContext.Log.LastQuestion = rawInput.Messages.LastOrDefault()?.Content ?? string.Empty;
+
         var usingModel = string.IsNullOrWhiteSpace(rawInput.Model)
             ? modelOptions.Value.DefaultIncomingModel
             : rawInput.Model;
@@ -125,6 +134,7 @@ public class ProxyController(
         else
         {
             logger.LogInformation("Using model: {Model} for request with {InputModel}", modelConfig.Name, rawInput.Model);
+            logContext.Log.Model = modelConfig.Name;
         }
 
         var underlyingService = underlyingServices
@@ -184,11 +194,22 @@ public class ProxyController(
                     modelConfig.Name,
                     cts.Token); // Pass target model name for Ollama format
 
+                logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
+                clickhouseDbContext.RequestLogs.Add(logContext.Log);
+                await clickhouseDbContext.SaveChangesAsync();
                 return new EmptyResult();
             }
             else
             {
                 var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: cts.Token);
+                logContext.Log.Success = true;
+                logContext.Log.Answer = response.GetAnswerPart();
+                // If CompletionData has thinking/reasoning_content, we should capture it here.
+                // For now, GptClient might not support it, so it will be empty.
+                
+                logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
+                clickhouseDbContext.RequestLogs.Add(logContext.Log);
+                await clickhouseDbContext.SaveChangesAsync();
                 return Ok(response);
             }
         }
@@ -197,12 +218,25 @@ public class ProxyController(
             logger.LogWarning("Request timed out after {Timeout} minutes. (Target: {Model}, Provider: {Provider})", 
                 modelOptions.Value.TimeoutMinutes, modelConfig.Name, underlyingService.Name);
             
+            logContext.Log.Success = false;
+            logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
+            clickhouseDbContext.RequestLogs.Add(logContext.Log);
+            await clickhouseDbContext.SaveChangesAsync();
+
             if (context.RawInput.Stream == true)
             {
                 return new EmptyResult();
             }
 
-            return StatusCode(StatusCodes.Status504GatewayTimeout, "Request timed out.");
+            return StatusCode(StatusCodes.Status504GatewayTimeout, "Request timeout.");
+        }
+        catch (Exception)
+        {
+            logContext.Log.Success = false;
+            logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
+            clickhouseDbContext.RequestLogs.Add(logContext.Log);
+            await clickhouseDbContext.SaveChangesAsync();
+            throw;
         }
     }
 }
