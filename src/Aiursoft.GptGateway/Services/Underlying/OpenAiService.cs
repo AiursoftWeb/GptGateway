@@ -32,10 +32,11 @@ public class OpenAiService(
         var endPoint = options.Value.OpenAI.InstanceUrl.TrimEnd('/') + "/v1/chat/completions";
         logger.LogInformation("Ask OpenAI model with endpoint: {endPoint}, token is {token}", endPoint,
             options.Value.OpenAI.Token.SafeSubstring(10));
-        return client.AskModel(
+        return client.AskModelWithRetry(
             model: model,
             completionApiUrl: endPoint,
             token: options.Value.OpenAI.Token,
+            logger: logger,
             cancellationToken: cancellationToken);
     }
 
