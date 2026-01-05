@@ -29,10 +29,11 @@ public class OllamaService(
         model.Stream = false;
         var endPoint = options.Value.Ollama.Instance.TrimEnd('/') + "/api/chat";
         logger.LogInformation("Ask Ollama model with endpoint: {endPoint}.", endPoint);
-        return client.AskModel(
+        return client.AskModelWithRetry(
             model: model,
             completionApiUrl: endPoint,
             token: string.Empty,
+            logger: logger,
             cancellationToken: cancellationToken);
     }
 

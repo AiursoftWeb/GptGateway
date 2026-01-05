@@ -28,7 +28,7 @@ public class ProxyController(
     {
         return Ok(new
         {
-            version = "0.8.1"
+            version = "0.8.2"
         });
     }
 
@@ -203,7 +203,7 @@ public class ProxyController(
             {
                 var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: cts.Token);
                 logContext.Log.Success = true;
-                logContext.Log.Answer = response.GetAnswerPart();
+                logContext.Log.Answer = response.Choices?.Count > 0 ? response.GetAnswerPart() : string.Empty;
                 // If CompletionData has thinking/reasoning_content, we should capture it here.
                 // For now, GptClient might not support it, so it will be empty.
                 

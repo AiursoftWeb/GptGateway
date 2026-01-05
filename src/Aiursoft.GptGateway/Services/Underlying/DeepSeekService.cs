@@ -32,10 +32,11 @@ public class DeepSeekService(
         var endPoint = options.Value.DeepSeek.Instance.TrimEnd('/') + "/chat/completions";
         logger.LogInformation("Ask DeepSeek model with endpoint: {endPoint}, token is {token}", endPoint,
             options.Value.DeepSeek.Token.SafeSubstring(10));
-        return client.AskModel(
+        return client.AskModelWithRetry(
             model: model,
             completionApiUrl: endPoint,
             token: options.Value.DeepSeek.Token,
+            logger: logger,
             cancellationToken: cancellationToken);
     }
 
