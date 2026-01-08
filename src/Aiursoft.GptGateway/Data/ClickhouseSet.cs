@@ -8,7 +8,7 @@ public class ClickhouseSet<T>(
     string tableName, 
     Func<T, object[]> mapper) where T : class
 {
-    internal readonly List<T> _local = new();
+    public readonly List<T> _local = new();
 
     public void Add(T entity)
     {
