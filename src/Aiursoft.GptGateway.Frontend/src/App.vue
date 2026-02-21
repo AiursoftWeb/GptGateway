@@ -23,6 +23,19 @@
       <el-form-item label="API Key">
         <el-input v-model="apiKey" placeholder="请输入 API Key" show-password />
       </el-form-item>
+      <el-form-item label="模型">
+        <el-select v-model="formdata.model" placeholder="请选择模型" style="width: 100%">
+          <el-option
+            v-for="model in availableModels"
+            :key="model.name"
+            :label="model.name"
+            :value="model.name"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="流式输出">
+        <el-checkbox v-model="formdata.stream">开启流式输出</el-checkbox>
+      </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
@@ -51,7 +64,8 @@
         </el-input>
       </el-form>
     </div>
-    <div class="button-group">
+    <div class="button-group" style="display: flex; align-items: center; gap: 10px;">
+      <el-checkbox v-model="formdata.stream" style="margin-right: 10px;">流式</el-checkbox>
       <el-tooltip content="Ctrl+Enter" placement="top">
         <el-button @click="onSubmit" type="primary">发送</el-button>
       </el-tooltip>
@@ -94,9 +108,12 @@ const loading = ref(false);
 const scrollContainer = ref(null);
 const showSettings = ref(false);
 const apiKey = ref(localStorage.getItem('gpt_gateway_api_key') || '');
+const availableModels = ref([]);
 
 const formdata = reactive({
   question: "",
+  model: localStorage.getItem('gpt_gateway_model') || '',
+  stream: localStorage.getItem('gpt_gateway_stream') === null ? true : localStorage.getItem('gpt_gateway_stream') === 'true',
 });
 
 const dialogue = reactive({
@@ -115,6 +132,8 @@ const reset = () => {
 
 const saveSettings = () => {
   localStorage.setItem('gpt_gateway_api_key', apiKey.value);
+  localStorage.setItem('gpt_gateway_model', formdata.model);
+  localStorage.setItem('gpt_gateway_stream', formdata.stream.toString());
   showSettings.value = false;
 };
 
@@ -125,6 +144,7 @@ const getResult = async () => {
     content: formdata.question.trim()
   });
   // 清空输入框
+  const question = formdata.question.trim();
   formdata.question = "";
 
   // 插入助手的占位消息（loading状态）
@@ -152,26 +172,62 @@ const getResult = async () => {
       headers["Authorization"] = `Bearer ${apiKey.value}`;
     }
 
-    const response = await fetch('/api/chat/', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
         messages: conversation,
-
-        // TODO: Support stream = true.
-        stream: false
+        model: formdata.model,
+        stream: formdata.stream
       })
     });
     
     if (response.status === 401) {
       pendingMessage.content = "未授权：请在设置中检查您的 API Key。";
       showSettings.value = true;
+      pendingMessage.loading = false;
       return;
     }
 
-    const data = await response.json();
-    // API 返回的数据中
-    pendingMessage.content = data.choices[0].message.content;
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    if (formdata.stream) {
+        pendingMessage.loading = false;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (line.trim()) {
+                    try {
+                        const json = JSON.parse(line);
+                        if (json.message && json.message.content) {
+                            pendingMessage.content += json.message.content;
+                        } else if (json.response) { // Ollama direct format might use 'response'
+                            pendingMessage.content += json.response;
+                        }
+                        await nextTick();
+                        scrollToBottom();
+                    } catch (e) {
+                        console.error("Error parsing JSON line", line, e);
+                    }
+                }
+            }
+        }
+    } else {
+        const data = await response.json();
+        pendingMessage.content = data.choices[0].message.content;
+    }
   } catch (error) {
     pendingMessage.content = error.toString();
   } finally {
@@ -179,6 +235,19 @@ const getResult = async () => {
     loading.value = false;
     await nextTick();
     scrollToBottom();
+  }
+};
+
+const fetchModels = async () => {
+  try {
+    const response = await fetch('/api/tags');
+    const data = await response.json();
+    availableModels.value = data.models;
+    if (!formdata.model && availableModels.value.length > 0) {
+      formdata.model = availableModels.value[0].name;
+    }
+  } catch (error) {
+    console.error("Failed to fetch models", error);
   }
 };
 
@@ -195,6 +264,7 @@ const scrollToBottom = async () => {
 onMounted(() => {
   followSystemColorScheme();
   version.value = versionData.gitCommitId;
+  fetchModels();
 });
 </script>
 
