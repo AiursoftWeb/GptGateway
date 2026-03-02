@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text;
 
 namespace Aiursoft.GptGateway.Controllers;
 
@@ -20,6 +21,8 @@ public class ProxyController(
     IEnumerable<IPlugin> plugins,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions,
+    IOptions<UnderlyingsOptions> underlyingsOptions,
+    IHttpClientFactory httpClientFactory,
     RequestLogContext logContext,
     ClickhouseDbContext clickhouseDbContext) : ControllerBase
 {
@@ -35,7 +38,7 @@ public class ProxyController(
     [HttpGet("tags")]
     public IActionResult GetTags()
     {
-        var modelTags = modelOptions
+        var chatModelTags = modelOptions
             .Value
             .SupportedModels
             .Select(t => t.Name)
@@ -57,8 +60,33 @@ public class ProxyController(
                     ParameterSize = "32.8B",
                     QuantizationLevel = "Q4_K_M"
                 }
-            })
-            .ToArray();
+            });
+
+        var embeddingModelTags = modelOptions
+            .Value
+            .EmbeddingModels
+            .Select(t => t.Name)
+            .Select(name => new ModelTag
+            {
+                Name = name,
+                Model = name,
+                ModifiedAt = DateTime.UtcNow,
+                Size = 4683075271,
+                Digest = GenerateHash(name),
+                Details = new ModelDetails
+                {
+                    ParentModel = string.Empty,
+                    Format = "gguf",
+                    Family = "qwen2",
+                    Families = [
+                        "qwen2"
+                    ],
+                    ParameterSize = "8B",
+                    QuantizationLevel = "Q4_K_M"
+                }
+            });
+
+        var modelTags = chatModelTags.Concat(embeddingModelTags).ToArray();
         return Ok(new
         {
             models = modelTags
@@ -270,5 +298,130 @@ public class ProxyController(
             await clickhouseDbContext.SaveChangesAsync();
             throw;
         }
+    }
+
+    /// <summary>
+    /// Proxy for Ollama /api/embed (batch embedding, new API).
+    /// Resolves the embedding model config and injects options before forwarding.
+    /// </summary>
+    [HttpPost("embed")]
+    public async Task<IActionResult> Embed([FromBody] OllamaEmbedRequest rawInput)
+    {
+        var sw = Stopwatch.StartNew();
+        var usingModel = rawInput.Model;
+
+        logger.LogInformation("Incoming embed request for model: {Model}", usingModel);
+        logger.LogTrace("Raw embed input: {RawInput}", JsonConvert.SerializeObject(rawInput));
+
+        var embeddingConfig = modelOptions
+            .Value
+            .EmbeddingModels
+            .FirstOrDefault(m => usingModel.StartsWith(m.Name, StringComparison.OrdinalIgnoreCase));
+
+        if (embeddingConfig is null)
+        {
+            logger.LogWarning("Embedding model not found: {Model}", usingModel);
+            return BadRequest("Embedding model not found.");
+        }
+
+        // Rewrite the request: replace model name and inject options
+        rawInput.Model = embeddingConfig.UnderlyingModel;
+        rawInput.Options ??= new OllamaRequestOptions();
+        if (embeddingConfig.Options != null)
+        {
+            if (embeddingConfig.Options.NumCtx.HasValue) rawInput.Options.NumCtx = embeddingConfig.Options.NumCtx;
+            if (embeddingConfig.Options.Temperature.HasValue) rawInput.Options.Temperature = embeddingConfig.Options.Temperature;
+            if (embeddingConfig.Options.TopP.HasValue) rawInput.Options.TopP = embeddingConfig.Options.TopP;
+            if (embeddingConfig.Options.TopK.HasValue) rawInput.Options.TopK = embeddingConfig.Options.TopK;
+        }
+
+        logger.LogInformation("Forwarding embed request to Ollama. Underlying model: {UnderlyingModel}, num_ctx: {NumCtx}",
+            rawInput.Model, rawInput.Options.NumCtx);
+
+        var ollamaEndpoint = underlyingsOptions.Value.Ollama.Instance.TrimEnd('/') + "/api/embed";
+        var result = await ForwardJsonToOllama<OllamaEmbedRequest, OllamaEmbedResponse>(rawInput, ollamaEndpoint);
+
+        // Rewrite response model name back to the gateway model name
+        if (result != null)
+        {
+            result.Model = embeddingConfig.Name;
+        }
+
+        logger.LogInformation("Embed request completed. Duration: {Duration}ms", sw.Elapsed.TotalMilliseconds);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Proxy for Ollama /api/embeddings (legacy single embedding API).
+    /// Resolves the embedding model config and injects options before forwarding.
+    /// </summary>
+    [HttpPost("embeddings")]
+    public async Task<IActionResult> Embeddings([FromBody] OllamaEmbeddingsRequest rawInput)
+    {
+        var sw = Stopwatch.StartNew();
+        var usingModel = rawInput.Model;
+
+        logger.LogInformation("Incoming embeddings (legacy) request for model: {Model}", usingModel);
+        logger.LogTrace("Raw embeddings input: {RawInput}", JsonConvert.SerializeObject(rawInput));
+
+        var embeddingConfig = modelOptions
+            .Value
+            .EmbeddingModels
+            .FirstOrDefault(m => usingModel.StartsWith(m.Name, StringComparison.OrdinalIgnoreCase));
+
+        if (embeddingConfig is null)
+        {
+            logger.LogWarning("Embedding model not found: {Model}", usingModel);
+            return BadRequest("Embedding model not found.");
+        }
+
+        // Rewrite the request: replace model name and inject options
+        rawInput.Model = embeddingConfig.UnderlyingModel;
+        rawInput.Options ??= new OllamaRequestOptions();
+        if (embeddingConfig.Options != null)
+        {
+            if (embeddingConfig.Options.NumCtx.HasValue) rawInput.Options.NumCtx = embeddingConfig.Options.NumCtx;
+            if (embeddingConfig.Options.Temperature.HasValue) rawInput.Options.Temperature = embeddingConfig.Options.Temperature;
+            if (embeddingConfig.Options.TopP.HasValue) rawInput.Options.TopP = embeddingConfig.Options.TopP;
+            if (embeddingConfig.Options.TopK.HasValue) rawInput.Options.TopK = embeddingConfig.Options.TopK;
+        }
+
+        logger.LogInformation("Forwarding embeddings (legacy) request to Ollama. Underlying model: {UnderlyingModel}, num_ctx: {NumCtx}",
+            rawInput.Model, rawInput.Options.NumCtx);
+
+        var ollamaEndpoint = underlyingsOptions.Value.Ollama.Instance.TrimEnd('/') + "/api/embeddings";
+        var result = await ForwardJsonToOllama<OllamaEmbeddingsRequest, OllamaEmbeddingsResponse>(rawInput, ollamaEndpoint);
+
+        logger.LogInformation("Embeddings (legacy) request completed. Duration: {Duration}ms", sw.Elapsed.TotalMilliseconds);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Generic helper to serialize a request, POST it to Ollama, and deserialize the response.
+    /// </summary>
+    private async Task<TResponse?> ForwardJsonToOllama<TRequest, TResponse>(TRequest request, string endpoint)
+    {
+        var client = httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromMinutes(modelOptions.Value.TimeoutMinutes);
+
+        var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        });
+        logger.LogTrace("Forwarding to Ollama endpoint {Endpoint}: {Json}", endpoint, json);
+
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await client.PostAsync(endpoint, content, HttpContext.RequestAborted);
+
+        var responseBody = await response.Content.ReadAsStringAsync(HttpContext.RequestAborted);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning("Ollama returned {StatusCode} for {Endpoint}: {Body}", response.StatusCode, endpoint, responseBody);
+            throw new HttpRequestException($"Ollama returned {response.StatusCode}: {responseBody}");
+        }
+
+        logger.LogTrace("Ollama response from {Endpoint}: {Body}", endpoint, responseBody);
+        return JsonConvert.DeserializeObject<TResponse>(responseBody);
     }
 }
