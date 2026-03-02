@@ -14,9 +14,9 @@ public class TestStartup : Startup
     {
         base.ConfigureServices(configuration, environment, services);
         services.RemoveAll<ChatClient>();
-        services.AddTransient<ChatClient, MockOpenAiService>();
+        services.AddSingleton<ChatClient, MockOpenAiService>();
         
         services.RemoveAll<SearchService>();
-        services.AddTransient<SearchService, MockSearchService>();
+        services.AddSingleton<SearchService, MockSearchService>();
     }
 }

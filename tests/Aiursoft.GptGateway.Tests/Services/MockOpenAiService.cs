@@ -9,8 +9,11 @@ public class MockOpenAiService(
     ILogger<ChatClient> logger)
     : ChatClient(httpClient, logger)
 {
+    public OpenAiRequestModel? LastModel { get; private set; }
+
     public override Task<CompletionData> AskModel(OpenAiRequestModel model, string completionApiUrl, string? token, CancellationToken cancellationToken)
     {
+        LastModel = model;
         return Task.FromResult(new CompletionData
         {
             Id = "chat-id",
@@ -45,6 +48,7 @@ public class MockOpenAiService(
 
     public override Task<HttpResponseMessage> AskStream(OpenAiRequestModel model, string completionApiUrl, string? token, CancellationToken cancellationToken)
     {
+        LastModel = model;
         return Task.FromResult(new HttpResponseMessage());
     }
 

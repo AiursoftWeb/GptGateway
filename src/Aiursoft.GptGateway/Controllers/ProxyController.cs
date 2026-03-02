@@ -1,4 +1,3 @@
-using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
@@ -21,7 +20,6 @@ public class ProxyController(
     IEnumerable<IPlugin> plugins,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions,
-    IOptions<UnderlyingsOptions> underlyingsOptions,
     RequestLogContext logContext,
     ClickhouseDbContext clickhouseDbContext) : ControllerBase
 {
@@ -178,9 +176,6 @@ public class ProxyController(
                 ollamaInput.Options.TopP ??= modelConfig.Options.TopP;
                 ollamaInput.Options.TopK ??= modelConfig.Options.TopK;
             }
-
-            // Global override for NumCtx if still not set
-            ollamaInput.Options.NumCtx ??= underlyingsOptions.Value.Ollama.OverrideNumCtx;
         }
 
         logger.LogInformation("Calling underlying service: {Service} with model: {UnderlyingModel}", 
