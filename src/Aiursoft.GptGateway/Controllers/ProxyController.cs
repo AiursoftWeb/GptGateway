@@ -267,7 +267,7 @@ public class ProxyController(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error processing request for model {ModelName}. (Target: {TargetModel}, Provider: {Provider})", 
-                modelConfig?.Name, modelConfig?.UnderlyingModel, underlyingService?.Name);
+                modelConfig.Name, modelConfig.UnderlyingModel, underlyingService.Name);
             
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
