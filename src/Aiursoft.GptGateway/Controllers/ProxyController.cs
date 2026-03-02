@@ -7,6 +7,7 @@ using Aiursoft.GptGateway.Services.Abstractions;
 using Aiursoft.GptGateway.Services.Underlying;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace Aiursoft.GptGateway.Controllers;
@@ -20,6 +21,7 @@ public class ProxyController(
     IEnumerable<IPlugin> plugins,
     IEnumerable<IUnderlyingService> underlyingServices,
     IOptions<GptModelOptions> modelOptions,
+    IOptions<UnderlyingsOptions> underlyingsOptions,
     RequestLogContext logContext,
     ClickhouseDbContext clickhouseDbContext) : ControllerBase
 {
@@ -110,7 +112,7 @@ public class ProxyController(
 
     [HttpPost("chat")]
     [HttpPost("chat/completions")]               // 相对路径 -> /api/chat/completions
-    public async Task<IActionResult> Chat([FromBody] OllamaRequestModel rawInput)
+    public async Task<IActionResult> Chat([FromBody] OllamaRequestModelOverride rawInput)
     {
         var sw = Stopwatch.StartNew();
         logContext.Log.IP = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
@@ -120,6 +122,9 @@ public class ProxyController(
         var usingModel = string.IsNullOrWhiteSpace(rawInput.Model)
             ? modelOptions.Value.DefaultIncomingModel
             : rawInput.Model;
+
+        logger.LogInformation("Incoming request for model: {InputModel}. (Effective: {UsingModel})", rawInput.Model, usingModel);
+        logger.LogTrace("Raw input content: {RawInput}", JsonConvert.SerializeObject(rawInput));
 
         var modelConfig = modelOptions
             .Value
@@ -133,7 +138,8 @@ public class ProxyController(
         }
         else
         {
-            logger.LogInformation("Using model: {Model} for request with {InputModel}", modelConfig.Name, rawInput.Model);
+            logger.LogInformation("Resolved model config: {ModelName}. Underlying: {UnderlyingModel} via {Provider}", 
+                modelConfig.Name, modelConfig.UnderlyingModel, modelConfig.UnderlyingProvider);
             logContext.Log.Model = modelConfig.Name;
         }
 
@@ -141,12 +147,9 @@ public class ProxyController(
             .FirstOrDefault(s => s.Name == modelConfig.UnderlyingProvider);
         if (underlyingService is null)
         {
-            logger.LogWarning("Underlying service not found for request with {InputModel}", rawInput.Model);
+            logger.LogWarning("Underlying service not found for provider {Provider} for request with {InputModel}", 
+                modelConfig.UnderlyingProvider, rawInput.Model);
             return BadRequest("Underlying service not found.");
-        }
-        else
-        {
-            logger.LogInformation("Using underlying service: {Service} for request with {InputModel}", underlyingService.Name, rawInput.Model);
         }
 
         var context = new ConversationContext
@@ -154,11 +157,35 @@ public class ProxyController(
             HttpContext = HttpContext,
             RawInput = rawInput,
             ModifiedInput = underlyingService.SupportOllamaTooling ?
-                rawInput.CloneAsOllamaRequestModel() :
+                JsonConvert.DeserializeObject<OllamaRequestModelOverride>(JsonConvert.SerializeObject(rawInput))! :
                 rawInput.CloneAsOpenAiRequestModel(),
             Output = null
         };
         context.ModifiedInput.Model = modelConfig.UnderlyingModel;
+
+        if (context.ModifiedInput is OllamaRequestModelOverride ollamaInput)
+        {
+            if (modelConfig.Thinking.HasValue)
+            {
+                ollamaInput.Think = modelConfig.Thinking.Value;
+            }
+
+            ollamaInput.Options ??= new OllamaRequestOptions();
+            if (modelConfig.Options != null)
+            {
+                ollamaInput.Options.NumCtx ??= modelConfig.Options.NumCtx;
+                ollamaInput.Options.Temperature ??= modelConfig.Options.Temperature;
+                ollamaInput.Options.TopP ??= modelConfig.Options.TopP;
+                ollamaInput.Options.TopK ??= modelConfig.Options.TopK;
+            }
+
+            // Global override for NumCtx if still not set
+            ollamaInput.Options.NumCtx ??= underlyingsOptions.Value.Ollama.OverrideNumCtx;
+        }
+
+        logger.LogInformation("Calling underlying service: {Service} with model: {UnderlyingModel}", 
+            underlyingService.Name, context.ModifiedInput.Model);
+        logger.LogTrace("Modified input content: {ModifiedInput}", JsonConvert.SerializeObject(context.ModifiedInput));
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(HttpContext.RequestAborted);
         cts.CancelAfter(TimeSpan.FromMinutes(modelOptions.Value.TimeoutMinutes));
@@ -184,6 +211,7 @@ public class ProxyController(
 
             if (context.RawInput.Stream == true)
             {
+                logger.LogInformation("Starting stream for model: {ModelName} from provider: {Provider}", modelConfig.Name, underlyingService.Name);
                 var responseStream = await underlyingService.AskStream(context.ModifiedInput, cancellationToken: cts.Token);
 
                 // Use the StreamTransformService to handle the transformation if needed
@@ -194,6 +222,10 @@ public class ProxyController(
                     modelConfig.Name,
                     cts.Token); // Pass target model name for Ollama format
 
+                logger.LogInformation("Stream for {ModelName} completed. Duration: {Duration}ms. Success: {Success}", 
+                    modelConfig.Name, sw.Elapsed.TotalMilliseconds, logContext.Log.Success);
+                logger.LogTrace("Streamed answer: {Answer}", logContext.Log.Answer);
+                
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
                 clickhouseDbContext.RequestLogs.Add(logContext.Log);
                 await clickhouseDbContext.SaveChangesAsync();
@@ -204,8 +236,10 @@ public class ProxyController(
                 var response = await underlyingService.AskModel(context.ModifiedInput, cancellationToken: cts.Token);
                 logContext.Log.Success = true;
                 logContext.Log.Answer = response.Choices?.Count > 0 ? response.GetAnswerPart() : string.Empty;
-                // If CompletionData has thinking/reasoning_content, we should capture it here.
-                // For now, GptClient might not support it, so it will be empty.
+                
+                logger.LogInformation("Underlying service {Service} returned response. Answer length: {Length} characters.", 
+                    underlyingService.Name, logContext.Log.Answer.Length);
+                logger.LogTrace("Full response content: {Response}", JsonConvert.SerializeObject(response));
                 
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
                 clickhouseDbContext.RequestLogs.Add(logContext.Log);
@@ -230,8 +264,11 @@ public class ProxyController(
 
             return StatusCode(StatusCodes.Status504GatewayTimeout, "Request timeout.");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Error processing request for model {ModelName}. (Target: {TargetModel}, Provider: {Provider})", 
+                modelConfig?.Name, modelConfig?.UnderlyingModel, underlyingService?.Name);
+            
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
             clickhouseDbContext.RequestLogs.Add(logContext.Log);

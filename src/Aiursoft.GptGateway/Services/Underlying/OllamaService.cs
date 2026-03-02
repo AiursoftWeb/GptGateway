@@ -1,5 +1,6 @@
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
+using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Microsoft.Extensions.Options;
 

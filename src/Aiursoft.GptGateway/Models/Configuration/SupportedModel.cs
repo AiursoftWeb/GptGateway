@@ -7,4 +7,7 @@ public class SupportedModel
     public required string UnderlyingProvider { get; init; }
     public required string UnderlyingModel { get; init; }
     public string[] Plugins { get; init; } = [];
+
+    public bool? Thinking { get; init; }
+    public OllamaRequestOptions? Options { get; init; }
 }
