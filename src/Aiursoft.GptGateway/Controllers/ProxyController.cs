@@ -171,10 +171,10 @@ public class ProxyController(
             ollamaInput.Options ??= new OllamaRequestOptions();
             if (modelConfig.Options != null)
             {
-                ollamaInput.Options.NumCtx ??= modelConfig.Options.NumCtx;
-                ollamaInput.Options.Temperature ??= modelConfig.Options.Temperature;
-                ollamaInput.Options.TopP ??= modelConfig.Options.TopP;
-                ollamaInput.Options.TopK ??= modelConfig.Options.TopK;
+                if (modelConfig.Options.NumCtx.HasValue) ollamaInput.Options.NumCtx = modelConfig.Options.NumCtx;
+                if (modelConfig.Options.Temperature.HasValue) ollamaInput.Options.Temperature = modelConfig.Options.Temperature;
+                if (modelConfig.Options.TopP.HasValue) ollamaInput.Options.TopP = modelConfig.Options.TopP;
+                if (modelConfig.Options.TopK.HasValue) ollamaInput.Options.TopK = modelConfig.Options.TopK;
             }
         }
 
