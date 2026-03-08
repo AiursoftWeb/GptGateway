@@ -104,4 +104,20 @@ public class ApiKeyTests
         // Should be 404 or something else, but NOT 401 if it's a static file or something
         Assert.AreNotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    [TestMethod]
+    public async Task TestNoAuthNeededForModelEndpoints()
+    {
+        var responseTags = await _http.GetAsync($"{_endpointUrl}/api/tags"); 
+        Assert.AreNotEqual(HttpStatusCode.Unauthorized, responseTags.StatusCode);
+
+        var responseVersion = await _http.GetAsync($"{_endpointUrl}/api/version"); 
+        Assert.AreNotEqual(HttpStatusCode.Unauthorized, responseVersion.StatusCode);
+
+        var responsePs = await _http.GetAsync($"{_endpointUrl}/api/ps"); 
+        Assert.AreNotEqual(HttpStatusCode.Unauthorized, responsePs.StatusCode);
+
+        var responseModels = await _http.GetAsync($"{_endpointUrl}/v1/models"); 
+        Assert.AreNotEqual(HttpStatusCode.Unauthorized, responseModels.StatusCode);
+    }
 }
