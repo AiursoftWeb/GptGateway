@@ -22,6 +22,16 @@ public class ApiKeyMiddleware(RequestDelegate next, IOptions<GptModelOptions> mo
             return;
         }
 
+        if (HttpMethods.IsGet(context.Request.Method) &&
+            (path.Equals("/api/tags", StringComparison.OrdinalIgnoreCase) ||
+             path.Equals("/api/version", StringComparison.OrdinalIgnoreCase) ||
+             path.Equals("/api/ps", StringComparison.OrdinalIgnoreCase) ||
+             path.Equals("/v1/models", StringComparison.OrdinalIgnoreCase)))
+        {
+            await next(context);
+            return;
+        }
+
         var authHeader = context.Request.Headers["Authorization"].ToString();
         var providedKey = string.Empty;
 
