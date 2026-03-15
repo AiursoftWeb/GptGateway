@@ -1,6 +1,5 @@
 using Aiursoft.CSTools.Tools;
 using Aiursoft.GptClient.Abstractions;
-using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Extensions;
 using Aiursoft.GptGateway.Models.Configuration;
 using ClickHouse.Client.ADO;

@@ -30,7 +30,7 @@ public static class ClickhouseExtensions
             await connection.OpenAsync();
             
             var tableName = "RequestLogs";
-            var properties = typeof(Aiursoft.GptGateway.Entities.RequestLog).GetProperties();
+            var properties = typeof(Entities.RequestLog).GetProperties();
             var columns = new List<string>();
 
             foreach (var prop in properties)

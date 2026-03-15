@@ -9,12 +9,15 @@ public class ClickhouseDbContext : IAsyncDisposable, IDisposable
 {
     private ClickHouseConnection? _connection;
     private readonly ClickhouseOptions _config;
+    private readonly ILogger<ClickhouseDbContext> _logger;
 
     public ClickhouseSet<RequestLog> RequestLogs { get; }
+    public bool Enabled => _config.Enabled;
 
-    public ClickhouseDbContext(IOptionsMonitor<ClickhouseOptions> options)
+    public ClickhouseDbContext(IOptionsMonitor<ClickhouseOptions> options, ILogger<ClickhouseDbContext> logger)
     {
         _config = options.CurrentValue;
+        _logger = logger;
         RequestLogs = new ClickhouseSet<RequestLog>(GetConnection, "RequestLogs", log => new object[] 
         {
             log.IP,
@@ -50,7 +53,15 @@ public class ClickhouseDbContext : IAsyncDisposable, IDisposable
         {
             return;
         }
-        await RequestLogs.SaveChangesAsync();
+
+        try
+        {
+            await RequestLogs.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to save logs to Clickhouse.");
+        }
     }
 
     public async ValueTask DisposeAsync()
