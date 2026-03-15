@@ -29,6 +29,7 @@ public class ClickhouseSet<T>(
             BatchSize = _local.Count
         };
 
+        await bulkCopy.InitAsync();
         await bulkCopy.WriteToServerAsync(_local.Select(mapper));
         _local.Clear();
     }

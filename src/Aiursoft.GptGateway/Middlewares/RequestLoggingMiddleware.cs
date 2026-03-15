@@ -1,17 +1,27 @@
+using System.Diagnostics;
 using System.Text;
+using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Models;
 
 namespace Aiursoft.GptGateway.Middlewares;
 
 public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
 {
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, RequestLogContext logContext, ClickhouseDbContext clickhouseDbContext)
     {
+        var sw = Stopwatch.StartNew();
         var request = context.Request;
 
         request.EnableBuffering();
 
         var method = request.Method;
         var path = request.Path + request.QueryString;
+
+        logContext.Log.IP = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        logContext.Log.Method = method;
+        logContext.Log.Path = path;
+        logContext.Log.UserAgent = request.Headers["User-Agent"].ToString();
+        logContext.Log.TraceId = context.TraceIdentifier;
 
         var body = string.Empty;
         if (request.ContentLength > 0)
@@ -23,7 +33,17 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggi
         }
 
         logger.LogInformation("→ HTTP {Method} {Path}  Body: {Body}", method, path, body);
+        
         await next(context);
+
+        logContext.Log.StatusCode = context.Response.StatusCode;
+        if (logContext.Log.Duration == 0)
+        {
+            logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
+        }
+
+        clickhouseDbContext.RequestLogs.Add(logContext.Log);
+        await clickhouseDbContext.SaveChangesAsync();
     }
 }
 

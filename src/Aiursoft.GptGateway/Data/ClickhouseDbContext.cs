@@ -25,7 +25,12 @@ public class ClickhouseDbContext : IAsyncDisposable, IDisposable
             log.Duration,
             log.Thinking,
             log.Answer,
-            log.RequestTime
+            log.RequestTime,
+            log.Method,
+            log.Path,
+            log.StatusCode,
+            log.UserAgent,
+            log.TraceId
         });
     }
 

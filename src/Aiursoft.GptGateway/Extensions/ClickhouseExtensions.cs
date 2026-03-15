@@ -28,22 +28,66 @@ public static class ClickhouseExtensions
         {
             await using var connection = new ClickHouseConnection(options.CurrentValue.ConnectionString);
             await connection.OpenAsync();
-            await using var command = connection.CreateCommand();
-            command.CommandText = @"
-                CREATE TABLE IF NOT EXISTS RequestLogs (
-                    IP String,
-                    ConversationMessageCount Int32,
-                    LastQuestion String,
-                    Model String,
-                    Success UInt8,
-                    Duration Float64,
-                    Thinking String,
-                    Answer String,
-                    RequestTime DateTime
+            
+            var tableName = "RequestLogs";
+            var properties = typeof(Aiursoft.GptGateway.Entities.RequestLog).GetProperties();
+            var columns = new List<string>();
+
+            foreach (var prop in properties)
+            {
+                var type = prop.PropertyType;
+                var chType = type switch
+                {
+                    _ when type == typeof(string) => "String",
+                    _ when type == typeof(int) => "Int32",
+                    _ when type == typeof(uint) => "UInt32",
+                    _ when type == typeof(long) => "Int64",
+                    _ when type == typeof(ulong) => "UInt64",
+                    _ when type == typeof(float) => "Float32",
+                    _ when type == typeof(double) => "Float64",
+                    _ when type == typeof(bool) => "UInt8",
+                    _ when type == typeof(DateTime) => "DateTime",
+                    _ => "String"
+                };
+                columns.Add($"{prop.Name} {chType}");
+            }
+
+            var createTableSql = $@"
+                CREATE TABLE IF NOT EXISTS {tableName} (
+                    {string.Join(",\n                    ", columns)}
                 ) ENGINE = MergeTree()
                 ORDER BY RequestTime";
-            await command.ExecuteNonQueryAsync();
-            logger.LogInformation("Clickhouse table initialized.");
+            
+            await using (var command = connection.CreateCommand())
+            {
+                command.CommandText = createTableSql;
+                await command.ExecuteNonQueryAsync();
+            }
+
+            // Check for missing columns
+            foreach (var prop in properties)
+            {
+                var chType = prop.PropertyType switch
+                {
+                    _ when prop.PropertyType == typeof(string) => "String",
+                    _ when prop.PropertyType == typeof(int) => "Int32",
+                    _ when prop.PropertyType == typeof(uint) => "UInt32",
+                    _ when prop.PropertyType == typeof(long) => "Int64",
+                    _ when prop.PropertyType == typeof(ulong) => "UInt64",
+                    _ when prop.PropertyType == typeof(float) => "Float32",
+                    _ when prop.PropertyType == typeof(double) => "Float64",
+                    _ when prop.PropertyType == typeof(bool) => "UInt8",
+                    _ when prop.PropertyType == typeof(DateTime) => "DateTime",
+                    _ => "String"
+                };
+
+                var alterSql = $"ALTER TABLE {tableName} ADD COLUMN IF NOT EXISTS {prop.Name} {chType}";
+                await using var command = connection.CreateCommand();
+                command.CommandText = alterSql;
+                await command.ExecuteNonQueryAsync();
+            }
+
+            logger.LogInformation("Clickhouse table '{TableName}' initialized and schema updated.", tableName);
         }
         catch (Exception e)
         {

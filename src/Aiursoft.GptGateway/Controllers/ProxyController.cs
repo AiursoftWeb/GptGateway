@@ -1,4 +1,3 @@
-using Aiursoft.GptGateway.Data;
 using Aiursoft.GptGateway.Models;
 using Aiursoft.GptGateway.Models.Configuration;
 using Aiursoft.GptGateway.Services;
@@ -24,8 +23,7 @@ public class ProxyController(
     IOptions<GptModelOptions> modelOptions,
     IOptions<UnderlyingsOptions> underlyingsOptions,
     IHttpClientFactory httpClientFactory,
-    RequestLogContext logContext,
-    ClickhouseDbContext clickhouseDbContext) : ControllerBase
+    RequestLogContext logContext) : ControllerBase
 {
     [HttpGet("version")]
     public IActionResult GetVersion()
@@ -251,8 +249,6 @@ public class ProxyController(
                 logger.LogTrace("Streamed answer: {Answer}", logContext.Log.Answer);
                 
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-                clickhouseDbContext.RequestLogs.Add(logContext.Log);
-                await clickhouseDbContext.SaveChangesAsync();
                 return new EmptyResult();
             }
             else
@@ -266,8 +262,6 @@ public class ProxyController(
                 logger.LogTrace("Full response content: {Response}", JsonConvert.SerializeObject(response));
                 
                 logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-                clickhouseDbContext.RequestLogs.Add(logContext.Log);
-                await clickhouseDbContext.SaveChangesAsync();
                 return Ok(response);
             }
         }
@@ -278,8 +272,6 @@ public class ProxyController(
             
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-            clickhouseDbContext.RequestLogs.Add(logContext.Log);
-            await clickhouseDbContext.SaveChangesAsync();
 
             if (context.RawInput.Stream == true)
             {
@@ -295,8 +287,6 @@ public class ProxyController(
             
             logContext.Log.Success = false;
             logContext.Log.Duration = sw.Elapsed.TotalMilliseconds;
-            clickhouseDbContext.RequestLogs.Add(logContext.Log);
-            await clickhouseDbContext.SaveChangesAsync();
             throw;
         }
     }

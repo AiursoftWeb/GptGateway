@@ -13,13 +13,14 @@ public class ClickhouseDbContextTests
         var set = new ClickhouseSet<RequestLog>(
             () => Task.FromResult(new ClickHouseConnection()), 
             "TestTable", 
-            log => new object[] { log.IP });
+            log => new object[] { log.IP, log.Method, log.Path });
             
-        var log = new RequestLog { IP = "127.0.0.1" };
+        var log = new RequestLog { IP = "127.0.0.1", Method = "POST", Path = "/api/chat" };
         set.Add(log);
         
         Assert.HasCount(1, set._local);
         Assert.AreEqual("127.0.0.1", set._local[0].IP);
+        Assert.AreEqual("POST", set._local[0].Method);
     }
 
     [TestMethod]

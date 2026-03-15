@@ -1,8 +1,12 @@
 using Aiursoft.CSTools.Tools;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptGateway.Data;
+using Aiursoft.GptGateway.Extensions;
+using Aiursoft.GptGateway.Models.Configuration;
+using ClickHouse.Client.ADO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;
 using static Aiursoft.WebTools.Extends;
@@ -28,6 +32,7 @@ public class ClickhouseTests
         _port = Network.GetAvailablePort();
         _endpointUrl = $"http://localhost:{_port}";
         _server = await AppAsync<TestStartup>([], port: _port);
+        await _server.InitClickhouseAsync();
         await _server.StartAsync();
     }
 
@@ -42,6 +47,13 @@ public class ClickhouseTests
     [TestMethod]
     public async Task TestLogCollection()
     {
+        var options = _server!.Services.GetRequiredService<IOptions<ClickhouseOptions>>();
+        if (!options.Value.Enabled)
+        {
+            Assert.Inconclusive("Clickhouse is not enabled in appsettings.json for tests.");
+            return;
+        }
+
         var model = new OpenAiRequestModel
         {
             Messages =
@@ -65,13 +77,24 @@ public class ClickhouseTests
         var response = await _http.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
-        // Since we can't easily access the Scoped RequestLogContext from outside the request,
-        // we might need to check if the ClickhouseService was called if we mock it.
-        // But in this test, we just want to ensure the code doesn't crash and the flow works.
+        // Wait a bit for Clickhouse to flush (though our SaveChanges is immediate)
+        await Task.Delay(500);
+
+        // Verify data in Clickhouse
+        await using var connection = new ClickHouseConnection(options.Value.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT count() FROM RequestLogs WHERE LastQuestion = 'Hello, what is 1+1?'";
+        var count = Convert.ToInt64(await command.ExecuteScalarAsync());
         
-        // We can verify that ClickhouseDbContext is registered.
-        using var scope = _server!.Services.CreateScope();
-        var clickhouseDbContext = scope.ServiceProvider.GetService<ClickhouseDbContext>();
-        Assert.IsNotNull(clickhouseDbContext);
+        Assert.IsTrue(count >= 1, "Should find at least one log entry in Clickhouse.");
+
+        // Check columns
+        command.CommandText = "SELECT Method, Path, StatusCode FROM RequestLogs WHERE LastQuestion = 'Hello, what is 1+1?' LIMIT 1";
+        await using var reader = await command.ExecuteReaderAsync();
+        Assert.IsTrue(await reader.ReadAsync());
+        Assert.AreEqual("POST", reader["Method"].ToString());
+        Assert.AreEqual("/api/chat", reader["Path"].ToString());
+        Assert.AreEqual("200", reader["StatusCode"].ToString());
     }
 }
