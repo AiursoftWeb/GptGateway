@@ -53,6 +53,18 @@ public class ClickhouseTests
             return;
         }
 
+        // Check if Clickhouse is actually reachable
+        try
+        {
+            await using var checkConnection = new ClickHouseConnection(options.Value.ConnectionString);
+            await checkConnection.OpenAsync();
+        }
+        catch (Exception)
+        {
+            Assert.Inconclusive("Clickhouse is enabled but not reachable. Skipping test.");
+            return;
+        }
+
         var model = new OpenAiRequestModel
         {
             Messages =
